@@ -13,20 +13,20 @@
 # limitations under the License.
 
 """
-Models for Pet Demo Service
+Models for suppliers Demo Service
 
 All of the models are stored in this module
 
 Models
 ------
-Pet - A Pet used in the Pet Store
+Supplier -- A Supplier 
 
 Attributes:
 -----------
-name (string) - the name of the pet
-category (string) - the category the pet belongs to (i.e., dog, cat)
-available (boolean) - True for pets that are available for adoption
-
+id(int) - the id of the supplier
+name (string) - the name of the supplier
+available (boolean) - indicate whether the supplier is active or not
+products (list of int) - a list of product id provided by the supplier
 """
 import logging
 from enum import Enum
@@ -42,24 +42,17 @@ db = SQLAlchemy()
 
 def init_db(app):
     """Initialize the SQLAlchemy app"""
-    Pet.init_db(app)
+    Supplier.init_db(app)
 
 
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
 
 
-class Gender(Enum):
-    """Enumeration of valid Pet Genders"""
 
-    MALE = 0
-    FEMALE = 1
-    UNKNOWN = 3
-
-
-class Pet(db.Model):
+class Supplier(db.Model):
     """
-    Class that represents a Pet
+    Class that represents a Supplier
 
     This version uses a relational database for persistence which is hidden
     from us by SQLAlchemy's object relational mappings (ORM)
@@ -70,23 +63,19 @@ class Pet(db.Model):
     ##################################################
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
-    category = db.Column(db.String(63), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
-    gender = db.Column(
-        db.Enum(Gender), nullable=False, server_default=(Gender.UNKNOWN.name)
-    )
-    birthday = db.Column(db.Date(), nullable=False, default=date.today())
+    products = db.Column(db.Integer, nullable=True)
 
     ##################################################
     # INSTANCE METHODS
     ##################################################
 
     def __repr__(self):
-        return "<Pet %r id=[%s]>" % (self.name, self.id)
+        return "<Supplier %r id=[%s]>" % (self.name, self.id)
 
     def create(self):
         """
-        Creates a Pet to the database
+        Creates a Supplier to the database
         """
         logger.info("Creating %s", self.name)
         # id must be none to generate next primary key
@@ -96,7 +85,7 @@ class Pet(db.Model):
 
     def update(self):
         """
-        Updates a Pet to the database
+        Updates a Supplier to the database
         """
         logger.info("Saving %s", self.name)
         if not self.id:
@@ -104,31 +93,28 @@ class Pet(db.Model):
         db.session.commit()
 
     def delete(self):
-        """Removes a Pet from the data store"""
+        """Removes a Supplier from the data store"""
         logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self) -> dict:
-        """Serializes a Pet into a dictionary"""
+        """Serializes a Supplier into a dictionary"""
         return {
             "id": self.id,
             "name": self.name,
-            "category": self.category,
+            "products" : self.products,
             "available": self.available,
-            "gender": self.gender.name,  # convert enum to string
-            "birthday": self.birthday.isoformat()
         }
 
     def deserialize(self, data: dict):
         """
-        Deserializes a Pet from a dictionary
+        Deserializes a Supplier from a dictionary
         Args:
-            data (dict): A dictionary containing the Pet data
+            data (dict): A dictionary containing the Supplier data
         """
         try:
             self.name = data["name"]
-            self.category = data["category"]
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
@@ -136,15 +122,14 @@ class Pet(db.Model):
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )
-            self.gender = getattr(Gender, data["gender"])  # create enum from string
-            self.birthday = date.fromisoformat(data["birthday"])
+            self.products = data["products"]  # ??? not sure this part
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
-            raise DataValidationError("Invalid pet: missing " + error.args[0])
+            raise DataValidationError("Invalid supplier: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
-                "Invalid pet: body of request contained bad or no data " + str(error)
+                "Invalid supplier: body of request contained bad or no data " + str(error)
             )
         return self
 
@@ -168,90 +153,90 @@ class Pet(db.Model):
 
     @classmethod
     def all(cls) -> list:
-        """Returns all of the Pets in the database"""
-        logger.info("Processing all Pets")
+        """Returns all of the Suppliers in the database"""
+        logger.info("Processing all Suppliers")
         return cls.query.all()
 
     @classmethod
-    def find(cls, pet_id: int):
-        """Finds a Pet by it's ID
+    def find(cls, supplier_id: int):
+        """Finds a supplier by it's ID
 
-        :param pet_id: the id of the Pet to find
-        :type pet_id: int
+        :param supplier_id: the id of the Supplier to find
+        :type supplier_id: int
 
-        :return: an instance with the pet_id, or None if not found
-        :rtype: Pet
+        :return: an instance with the supplier_id, or None if not found
+        :rtype: Supplier
 
         """
-        logger.info("Processing lookup for id %s ...", pet_id)
-        return cls.query.get(pet_id)
+        logger.info("Processing lookup for id %s ...", supplier_id)
+        return cls.query.get(supplier_id)
 
     @classmethod
-    def find_or_404(cls, pet_id: int):
-        """Find a Pet by it's id
+    def find_or_404(cls, supplier_id: int):
+        """Find a supplier by it's id
 
-        :param pet_id: the id of the Pet to find
-        :type pet_id: int
+        :param supplier_id: the id of the Supplier to find
+        :type supplier_id: int
 
-        :return: an instance with the pet_id, or 404_NOT_FOUND if not found
-        :rtype: Pet
+        :return: an instance with the supplier_id, or 404_NOT_FOUND if not found
+        :rtype: Supplier
 
         """
-        logger.info("Processing lookup or 404 for id %s ...", pet_id)
-        return cls.query.get_or_404(pet_id)
+        logger.info("Processing lookup or 404 for id %s ...", supplier_id)
+        return cls.query.get_or_404(supplier_id)
 
     @classmethod
     def find_by_name(cls, name: str) -> list:
-        """Returns all Pets with the given name
+        """Returns all Suppliers with the given name
 
-        :param name: the name of the Pets you want to match
+        :param name: the name of the Suppliers you want to match
         :type name: str
 
-        :return: a collection of Pets with that name
+        :return: a collection of Suppliers with that name
         :rtype: list
 
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
 
-    @classmethod
-    def find_by_category(cls, category: str) -> list:
-        """Returns all of the Pets in a category
+    # @classmethod
+    # def find_by_category(cls, category: str) -> list:
+    #     """Returns all of the suppliers in a category
 
-        :param category: the category of the Pets you want to match
-        :type category: str
+    #     :param category: the category of the suppliers you want to match
+    #     :type category: str
 
-        :return: a collection of Pets in that category
-        :rtype: list
+    #     :return: a collection of suppliers in that category
+    #     :rtype: list
 
-        """
-        logger.info("Processing category query for %s ...", category)
-        return cls.query.filter(cls.category == category)
+    #     """
+    #     logger.info("Processing category query for %s ...", category)
+    #     return cls.query.filter(cls.category == category)
 
     @classmethod
     def find_by_availability(cls, available: bool = True) -> list:
-        """Returns all Pets by their availability
+        """Returns all Suppliers by their availability
 
-        :param available: True for pets that are available
+        :param available: True for suppliers that are available
         :type available: str
 
-        :return: a collection of Pets that are available
+        :return: a collection of Suppliers that are available
         :rtype: list
 
         """
         logger.info("Processing available query for %s ...", available)
         return cls.query.filter(cls.available == available)
 
-    @classmethod
-    def find_by_gender(cls, gender: Gender = Gender.UNKNOWN) -> list:
-        """Returns all Pets by their Gender
+    # @classmethod
+    # def find_by_gender(cls, gender: Gender = Gender.UNKNOWN) -> list:
+    #     """Returns all suppliers by their Gender
 
-        :param gender: values are ['MALE', 'FEMALE', 'UNKNOWN']
-        :type available: enum
+    #     :param gender: values are ['MALE', 'FEMALE', 'UNKNOWN']
+    #     :type available: enum
 
-        :return: a collection of Pets that are available
-        :rtype: list
+    #     :return: a collection of suppliers that are available
+    #     :rtype: list
 
-        """
-        logger.info("Processing gender query for %s ...", gender.name)
-        return cls.query.filter(cls.gender == gender)
+    #     """
+    #     logger.info("Processing gender query for %s ...", gender.name)
+    #     return cls.query.filter(cls.gender == gender)
