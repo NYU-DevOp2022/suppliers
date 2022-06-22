@@ -13,19 +13,19 @@
 # limitations under the License.
 
 """
-Pet Store Service
+Suppliers Service
 
 Paths:
 ------
-GET /pets - Returns a list all of the Pets
-GET /pets/{id} - Returns the Pet with a given id number
-POST /pets - creates a new Pet record in the database
-PUT /pets/{id} - updates a Pet record in the database
-DELETE /pets/{id} - deletes a Pet record in the database
+GET /suppliers - Returns a list all of the Suppliers
+GET /suppliers/{id} - Returns the Supplier with a given id number
+POST /suppliers - creates a new Supplier record in the database
+PUT /suppliers/{id} - updates a Supplier record in the database
+DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
 from flask import jsonify, request, url_for, abort
-from service.models import Pet
+from service.model import Supplier
 from . import status  # HTTP Status Codes
 from . import app  # Import Flask application
 
@@ -39,38 +39,35 @@ def index():
     app.logger.info("Request for Root URL")
     return (
         jsonify(
-            name="Pet Demo REST API Service",
+            name="Supplier Demo REST API Service",
             version="1.0",
-            paths=url_for("list_pets", _external=True),
+            paths=url_for("list_suppliers", _external=True),
         ),
         status.HTTP_200_OK,
     )
 
 
 ######################################################################
-# LIST ALL PETS
+# LIST ALL SUPPLIERS
 ######################################################################
-@app.route("/pets", methods=["GET"])
-def list_pets():
-    """Returns all of the Pets"""
-    app.logger.info("Request for pet list")
-    pets = []
-    category = request.args.get("category")
+@app.route("/suppliers", methods=["GET"])
+def list_suppliers():
+    """Returns all of the Suppliers"""
+    app.logger.info("Request for supplier list")
+    suppliers = []
     name = request.args.get("name")
-    if category:
-        pets = Pet.find_by_category(category)
-    elif name:
-        pets = Pet.find_by_name(name)
+    if name:
+        suppliers = Supplier.find_by_name(name)
     else:
-        pets = Pet.all()
+        suppliers = Supplier.all()
 
-    results = [pet.serialize() for pet in pets]
-    app.logger.info("Returning %d pets", len(results))
+    results = [supplier.serialize() for supplier in suppliers]
+    app.logger.info("Returning %d suppliers", len(results))
     return jsonify(results), status.HTTP_200_OK
 
 
 ######################################################################
-# RETRIEVE A PET
+# RETRIEVE A SUPPLIER
 ######################################################################
 @app.route("/pets/<int:pet_id>", methods=["GET"])
 def get_pets(pet_id):
