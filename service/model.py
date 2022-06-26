@@ -19,7 +19,7 @@ All of the models are stored in this module
 
 Models
 ------
-Supplier -- A Supplier 
+Supplier -- A Supplier
 
 Attributes:
 -----------
@@ -29,8 +29,6 @@ available (boolean) - indicate whether the supplier is active or not
 products (list of int) - a list of product id provided by the supplier
 """
 import logging
-from enum import Enum
-from datetime import date
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -47,7 +45,6 @@ def init_db(app):
 
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
-
 
 
 class Supplier(db.Model):
@@ -103,7 +100,7 @@ class Supplier(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "products" : self.products,
+            "products": self.products,
             "available": self.available,
         }
 
@@ -120,8 +117,7 @@ class Supplier(db.Model):
                 self.available = data["available"]
             else:
                 raise DataValidationError(
-                    "Invalid type for boolean [available]: "
-                    + str(type(data["available"]))
+                    "Invalid type for boolean [available]: " + str(type(data["available"]))
                 )
 
             if isinstance(data["products"], int):
@@ -129,15 +125,13 @@ class Supplier(db.Model):
                     self.products = data["products"]
                 else:
                     raise DataValidationError(
-                    "Invalid value for [products]: "
-                    + str(type(data["products"]))
+                        "Invalid value for [products]: " + str(type(data["products"]))
                 )
             else:
                 raise DataValidationError(
-                    "Invalid type for integer [products]: "
-                    + str(type(data["products"]))
+                    "Invalid type for integer [products]: " + str(type(data["products"]))
                 )
-        
+
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:

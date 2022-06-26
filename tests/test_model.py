@@ -23,11 +23,11 @@ While debugging just these tests it's convenient to use this:
     nosetests --stop tests/test_suppliers.py:TestSupplierModel
 
 """
-from itertools import product
+# from itertools import product
 import os
 import logging
 import unittest
-from datetime import date
+# from datetime import date
 from werkzeug.exceptions import NotFound
 from service.model import Supplier, DataValidationError, db
 from service import app
@@ -180,7 +180,7 @@ class TestSupplierModel(unittest.TestCase):
         supplier = Supplier()
         supplier.deserialize(data)
         self.assertNotEqual(supplier, None)
-        self.assertEqual(supplier.id, None)         #??? 
+        self.assertEqual(supplier.id, None)
         self.assertEqual(supplier.name, data["name"])
         self.assertEqual(supplier.products, data["products"])
         self.assertEqual(supplier.available, data["available"])

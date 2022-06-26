@@ -105,10 +105,8 @@ def create_suppliers():
 
         app.logger.info("Supplier with ID [%s] created.", supplier.id)
     except DataValidationError as error:
-        abort(status.HTTP_400_BAD_REQUEST, str(error) )
+        abort(status.HTTP_400_BAD_REQUEST, str(error))
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
-
-
 
 ######################################################################
 # UPDATE AN EXISTING SUPPLIER

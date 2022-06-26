@@ -29,7 +29,7 @@ import logging
 import unittest
 
 # from unittest.mock import MagicMock, patch
-from urllib.parse import quote_plus
+# from urllib.parse import quote_plus
 from service import app, status
 from service.model import db, init_db, Supplier
 from tests.factories import SupplierFactory
@@ -149,7 +149,6 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(new_supplier["available"], test_supplier.available)
         self.assertEqual(new_supplier["products"], test_supplier.products)
 
-
         # Check that the location header was correct   ???
         response = self.client.get(location, content_type=CONTENT_TYPE_JSON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -157,7 +156,6 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(new_supplier["name"], test_supplier.name)
         self.assertEqual(new_supplier["available"], test_supplier.available)
         self.assertEqual(new_supplier["products"], test_supplier.products)
-
 
 
     def test_update_supplier(self):
@@ -194,7 +192,7 @@ class TestSupplierService(unittest.TestCase):
         # make sure they are deleted
         response = self.client.get(f"{BASE_URL}/{test_supplier.id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
+
     # TO DO: Need to modify route.py to complement this test.
     # def test_query_supplier_list_by_products(self):
     #     """It should Query suppliers by Products"""
@@ -260,7 +258,7 @@ class TestSupplierService(unittest.TestCase):
     ######################################################################
     #  T E S T   M O C K S
     ######################################################################
-    
+
     # TO DO: "Keyword 'patch' not find error" need to be figure out.
     # @patch('service.route.Supplier.find_by_name')
     # def test_bad_request(self, bad_request_mock):
