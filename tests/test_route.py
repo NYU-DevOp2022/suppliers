@@ -157,7 +157,6 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(new_supplier["available"], test_supplier.available)
         self.assertEqual(new_supplier["products"], test_supplier.products)
 
-
     def test_update_supplier(self):
         """It should Update an existing supplier"""
         # create a supplier to update

@@ -126,7 +126,7 @@ class Supplier(db.Model):
                 else:
                     raise DataValidationError(
                         "Invalid value for [products]: " + str(type(data["products"]))
-                )
+                    )
             else:
                 raise DataValidationError(
                     "Invalid type for integer [products]: " + str(type(data["products"]))
