@@ -19,7 +19,7 @@ All of the models are stored in this module
 
 Models
 ------
-Supplier -- A Supplier 
+Supplier -- A Supplier
 
 Attributes:
 -----------
@@ -29,8 +29,6 @@ available (boolean) - indicate whether the supplier is active or not
 products (list of int) - a list of product id provided by the supplier
 """
 import logging
-from enum import Enum
-from datetime import date
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -47,7 +45,6 @@ def init_db(app):
 
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
-
 
 
 class Supplier(db.Model):
@@ -103,7 +100,7 @@ class Supplier(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "products" : self.products,
+            "products": self.products,
             "available": self.available,
         }
 
@@ -115,14 +112,26 @@ class Supplier(db.Model):
         """
         try:
             self.name = data["name"]
+
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
                 raise DataValidationError(
-                    "Invalid type for boolean [available]: "
-                    + str(type(data["available"]))
+                    "Invalid type for boolean [available]: " + str(type(data["available"]))
                 )
-            self.products = data["products"]  # ??? not sure this part
+
+            if isinstance(data["products"], int):
+                if data["products"] >= 0:
+                    self.products = data["products"]
+                else:
+                    raise DataValidationError(
+                        "Invalid value for [products]: " + str(type(data["products"]))
+                    )
+            else:
+                raise DataValidationError(
+                    "Invalid type for integer [products]: " + str(type(data["products"]))
+                )
+
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
@@ -199,19 +208,19 @@ class Supplier(db.Model):
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
 
-    # @classmethod
-    # def find_by_category(cls, category: str) -> list:
-    #     """Returns all of the suppliers in a category
+    @classmethod
+    def find_by_products(cls, products: int) -> list:
+        """Returns all of the suppliers in a category
 
-    #     :param category: the category of the suppliers you want to match
-    #     :type category: str
+        :param category: the category of the suppliers you want to match
+        :type category: str
 
-    #     :return: a collection of suppliers in that category
-    #     :rtype: list
+        :return: a collection of suppliers in that category
+        :rtype: list
 
-    #     """
-    #     logger.info("Processing category query for %s ...", category)
-    #     return cls.query.filter(cls.category == category)
+        """
+        logger.info("Processing products query for %s ...", products)
+        return cls.query.filter(cls.products == products)
 
     @classmethod
     def find_by_availability(cls, available: bool = True) -> list:

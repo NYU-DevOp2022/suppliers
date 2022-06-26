@@ -25,7 +25,7 @@ DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
 from flask import jsonify, request, url_for, abort
-from service.model import Supplier
+from service.model import Supplier, DataValidationError
 from . import status  # HTTP Status Codes
 from . import app  # Import Flask application
 
@@ -69,84 +69,86 @@ def list_suppliers():
 ######################################################################
 # RETRIEVE A SUPPLIER
 ######################################################################
-@app.route("/pets/<int:pet_id>", methods=["GET"])
-def get_pets(pet_id):
+@app.route("/suppliers/<int:supplier_id>", methods=["GET"])
+def get_suppliers(supplier_id):
     """
-    Retrieve a single Pet
+    Retrieve a single Supplier
 
-    This endpoint will return a Pet based on it's id
+    This endpoint will return a Supplier based on it's id
     """
-    app.logger.info("Request for pet with id: %s", pet_id)
-    pet = Pet.find(pet_id)
-    if not pet:
-        abort(status.HTTP_404_NOT_FOUND, f"Pet with id '{pet_id}' was not found.")
+    app.logger.info("Request for supplier with id: %s", supplier_id)
+    supplier = Supplier.find(supplier_id)
+    if not supplier:
+        abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
 
-    app.logger.info("Returning pet: %s", pet.name)
-    return jsonify(pet.serialize()), status.HTTP_200_OK
+    app.logger.info("Returning supplier: %s", supplier.name)
+    return jsonify(supplier.serialize()), status.HTTP_200_OK
 
 
 ######################################################################
-# ADD A NEW PET
+# ADD A NEW SUPPLIER
 ######################################################################
-@app.route("/pets", methods=["POST"])
-def create_pets():
+@app.route("/suppliers", methods=["POST"])
+def create_suppliers():
     """
-    Creates a Pet
-    This endpoint will create a Pet based the data in the body that is posted
+    Creates a Supplier
+    This endpoint will create a Supplier based the data in the body that is posted
     """
-    app.logger.info("Request to create a pet")
-    check_content_type("application/json")
-    pet = Pet()
-    pet.deserialize(request.get_json())
-    pet.create()
-    message = pet.serialize()
-    location_url = url_for("get_pets", pet_id=pet.id, _external=True)
+    try:
+        app.logger.info("Request to create a supplier")
+        check_content_type("application/json")
+        supplier = Supplier()
+        supplier.deserialize(request.get_json())
+        supplier.create()
+        message = supplier.serialize()
+        location_url = url_for("get_suppliers", supplier_id=supplier.id, _external=True)
 
-    app.logger.info("Pet with ID [%s] created.", pet.id)
+        app.logger.info("Supplier with ID [%s] created.", supplier.id)
+    except DataValidationError as error:
+        abort(status.HTTP_400_BAD_REQUEST, str(error))
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
-
 ######################################################################
-# UPDATE AN EXISTING PET
+# UPDATE AN EXISTING SUPPLIER
 ######################################################################
-@app.route("/pets/<int:pet_id>", methods=["PUT"])
-def update_pets(pet_id):
+@app.route("/suppliers/<int:supplier_id>", methods=["PUT"])
+def update_suppliers(supplier_id):
     """
-    Update a Pet
+    Update a Supplier
 
-    This endpoint will update a Pet based the body that is posted
+    This endpoint will update a Supplier based the body that is posted
     """
-    app.logger.info("Request to update pet with id: %s", pet_id)
+    app.logger.info("Request to update supplier with id: %s", supplier_id)
     check_content_type("application/json")
 
-    pet = Pet.find(pet_id)
-    if not pet:
-        abort(status.HTTP_404_NOT_FOUND, f"Pet with id '{pet_id}' was not found.")
+    supplier = Supplier.find(supplier_id)
+    if not supplier:
+        abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
 
-    pet.deserialize(request.get_json())
-    pet.id = pet_id
-    pet.update()
+    supplier.deserialize(request.get_json())
+    supplier.id = supplier_id
+    supplier.update()
 
-    app.logger.info("Pet with ID [%s] updated.", pet.id)
-    return jsonify(pet.serialize()), status.HTTP_200_OK
+    app.logger.info("Supplier with ID [%s] updated.", supplier.id)
+    return jsonify(supplier.serialize()), status.HTTP_200_OK
 
 
 ######################################################################
-# DELETE A PET
+# DELETE A SUPPLIER
 ######################################################################
-@app.route("/pets/<int:pet_id>", methods=["DELETE"])
-def delete_pets(pet_id):
+@app.route("/suppliers/<int:supplier_id>", methods=["DELETE"])
+def delete_suppliers(supplier_id):
     """
-    Delete a Pet
+    Delete a Supplier
 
-    This endpoint will delete a Pet based the id specified in the path
+    This endpoint will delete a Supplier based the id specified in the path
     """
-    app.logger.info("Request to delete pet with id: %s", pet_id)
-    pet = Pet.find(pet_id)
-    if pet:
-        pet.delete()
+    app.logger.info("Request to delete supplier with id: %s", supplier_id)
+    supplier = Supplier.find(supplier_id)
+    if supplier:
+        supplier.delete()
 
-    app.logger.info("Pet with ID [%s] delete complete.", pet_id)
+    app.logger.info("Supplier with ID [%s] delete complete.", supplier_id)
     return "", status.HTTP_204_NO_CONTENT
 
 
