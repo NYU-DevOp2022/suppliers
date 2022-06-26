@@ -18,7 +18,7 @@ Test Factory to make fake objects for testing
 import factory
 from datetime import date
 from factory.fuzzy import FuzzyChoice, FuzzyDate
-from service.models import Supplier
+from service.model import Supplier
 
 
 class SupplierFactory(factory.Factory):
