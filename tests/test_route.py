@@ -281,7 +281,8 @@ class TestSupplierService(unittest.TestCase):
             json=new_supplier,
             content_type=CONTENT_TYPE_JSON,
         )
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)    
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND) 
+           
     ######################################################################
     #  T E S T   M O C K S
     ######################################################################
