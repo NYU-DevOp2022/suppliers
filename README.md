@@ -31,6 +31,7 @@ These should be copied using a bash shell as follows:
 
 ## Contents
 
+
 The project contains the following:
 
 ```text
@@ -55,6 +56,16 @@ tests/              - test cases package
 ├── __init__.py     - package initializer
 ├── test_models.py  - test suite for business models
 └── test_routes.py  - test suite for service routes
+```
+### Manually Running The Tests
+To run the TDD tests please run the following commands:
+```
+ git clone https://github.com/20Fall-NYU-DevOps-Suppliers/suppliers.git
+ cd suppliers
+ vagrant up
+ vagrant ssh
+ cd /vagrant
+ nosetests
 ```
 
 ## License
