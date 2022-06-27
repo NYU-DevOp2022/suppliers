@@ -23,7 +23,13 @@ The purpose of this project is to develop a suppliers system for an eCommerce we
 ### URLS
 | RESTful APIS |  URL | Short description | Return |
 | :----------: | :---------: | :---------: | :---------: |
-| POST| \suppliers | Create a new supplier | Supplier Object|
+| `POST` | `/suppliers` | Create a new supplier | Supplier Object |
+| `PUT` | `/suppliers/<int:supplier_id>` |  Update a Supplier based on the body that is posted | Supplier Object |
+| `GET` | `/suppliers` | List all the suppliers | List of Supplier Objects |
+| `GET` | `/suppliers/<int:supplier_id>` | Find a supplier based on his id | Supplier Objects |
+| `DELETE` | `/suppliers/<int:supplier_id>` | Delete a supplier based on his id | HTTP_204_NO_CONTENT |
+
+
 
 ### Project files
 
