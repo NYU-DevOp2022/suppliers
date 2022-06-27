@@ -47,6 +47,8 @@ service/                   - service python package
 ├── __init__.py            - package initializer
 ├── models.py              - module with business models
 ├── routes.py              - module with service routes
+├── status.py              - HTTP status constants
+├── error_handlers.py.     - HTTP error handling code
 └── utils                  - utility package
     ├── error_handlers.py  - HTTP error handling code
     ├── log_handlers.py    - logging setup code
@@ -54,6 +56,7 @@ service/                   - service python package
 
 tests/              - test cases package
 ├── __init__.py     - package initializer
+├── factories.py    - generate test cases
 ├── test_models.py  - test suite for business models
 └── test_routes.py  - test suite for service routes
 ```
