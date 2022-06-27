@@ -69,7 +69,7 @@ class Supplier(db.Model):
     ##################################################
 
     def __repr__(self):
-        return f"<Supplier {self.name} id=[{self.id}]>"
+        return f"<Supplier '{self.name}' id=[{self.id}]>"
 
     def create(self):
         """
