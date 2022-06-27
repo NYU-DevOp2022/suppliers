@@ -60,7 +60,7 @@ tests/              - test cases package
 ### Manually Running The Tests
 To run the TDD tests please run the following commands:
 ```
- git clone https://github.com/20Fall-NYU-DevOps-Suppliers/suppliers.git
+ git clone https://github.com/NYU-DevOps2022/suppliers.git
  cd suppliers
  vagrant up
  vagrant ssh
