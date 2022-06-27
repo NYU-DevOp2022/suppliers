@@ -251,6 +251,15 @@ class TestSupplierModel(unittest.TestCase):
         self.assertEqual(found[0].name, suppliers[0].name)
         self.assertEqual(found[0].available, suppliers[0].available)
 
+    def test_find_by_products(self):
+        """It should Find a Supplier by products"""
+        suppliers = SupplierFactory.create_batch(5)
+        for supplier in suppliers:
+            supplier.create()
+        products = suppliers[0].products
+        found = Supplier.find_by_products(products)
+        self.assertEqual(found[0].products, suppliers[0].products)
+
     def test_find_by_availability(self):
         """It should Find Suppliers by Availability"""
         suppliers = SupplierFactory.create_batch(10)

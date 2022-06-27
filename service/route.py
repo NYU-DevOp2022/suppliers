@@ -56,8 +56,15 @@ def list_suppliers():
     app.logger.info("Request for supplier list")
     suppliers = []
     name = request.args.get("name")
+    products = request.args.get("products")
+    available = request.args.get("availab")
+
     if name:
         suppliers = Supplier.find_by_name(name)
+    if products:
+        suppliers = Supplier.find_by_products(products)
+    if available:
+        suppliers = Supplier.find_by_availability(available)
     else:
         suppliers = Supplier.all()
 
