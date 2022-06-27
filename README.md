@@ -77,11 +77,11 @@ To run the TDD tests please run the following commands:
  nosetests
 ```
 
-### Running Pylint:
+### Running Pylint: (Current Score 10/10)
 To run the pylint score please run the following commands:
 ```
- cd suppliers
- cd service
+ git clone https://github.com/NYU-DevOps2022/suppliers.git
+ cd suppliers/service
  pylint model.py
  pylint route.py
 ```
