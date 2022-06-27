@@ -181,6 +181,7 @@ class TestSupplierModel(unittest.TestCase):
         supplier.deserialize(data)
         self.assertNotEqual(supplier, None)
         self.assertEqual(supplier.id, None)
+        self.assertNotEqual(supplier.name, 1)
         self.assertEqual(supplier.name, data["name"])
         self.assertEqual(supplier.products, data["products"])
         self.assertEqual(supplier.available, data["available"])
@@ -211,6 +212,14 @@ class TestSupplierModel(unittest.TestCase):
         test_supplier = SupplierFactory()
         data = test_supplier.serialize()
         data["products"] = "12138"  # wrong case
+        supplier = Supplier()
+        self.assertRaises(DataValidationError, supplier.deserialize, data)
+
+    def test_deserialize_bad_name(self):
+        """It should not serialize a bad products attribute"""
+        test_supplier = SupplierFactory()
+        data = test_supplier.serialize()
+        data["name"] = 123  # wrong case
         supplier = Supplier()
         self.assertRaises(DataValidationError, supplier.deserialize, data)
 

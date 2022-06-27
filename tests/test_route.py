@@ -157,6 +157,10 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(new_supplier["available"], test_supplier.available)
         self.assertEqual(new_supplier["products"], test_supplier.products)
 
+    def test_update_bad_supplier(self):
+        NotFoundResponse = self.client.get(f"{BASE_URL}/0")
+        self.assertEqual(NotFoundResponse.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_update_supplier(self):
         """It should Update an existing supplier"""
         # create a supplier to update
