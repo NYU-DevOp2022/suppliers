@@ -212,19 +212,19 @@ class Supplier(db.Model):
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
 
-    # @classmethod
-    # def find_by_products(cls, products: int) -> list:
-    #     """Returns all of the suppliers in a category
+    @classmethod
+    def find_by_products(cls, products: int) -> list:
+        """Returns all of the suppliers in a category
 
-    #     :param category: the category of the suppliers you want to match
-    #     :type category: str
+        :param category: the category of the suppliers you want to match
+        :type category: str
 
-    #     :return: a collection of suppliers in that category
-    #     :rtype: list
+        :return: a collection of suppliers in that category
+        :rtype: list
 
-    #     """
-    #     logger.info("Processing products query for %s ...", products)
-    #     return cls.query.filter(cls.products == products)
+        """
+        logger.info("Processing products query for %s ...", products)
+        return cls.query.filter(cls.products == products)
 
     @classmethod
     def find_by_availability(cls, available: bool = True) -> list:
