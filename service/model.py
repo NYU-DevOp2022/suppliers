@@ -239,4 +239,3 @@ class Supplier(db.Model):
         """
         logger.info("Processing available query for %s ...", available)
         return cls.query.filter(cls.available == available)
-
