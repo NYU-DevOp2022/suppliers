@@ -77,6 +77,15 @@ To run the TDD tests please run the following commands:
  nosetests
 ```
 
+### Running Pylint:
+To run the pylint score please run the following commands:
+```
+ cd suppliers
+ cd service
+ pylint model.py
+ pylint route.py
+```
+
 ## License
 
 Copyright (c) John Rofrano. All rights reserved.
