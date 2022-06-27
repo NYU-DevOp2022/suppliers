@@ -222,7 +222,6 @@ class TestSupplierModel(unittest.TestCase):
         data["name"] = 123  # wrong case
         supplier = Supplier()
         self.assertRaises(DataValidationError, supplier.deserialize, data)
-
     def test_find_supplier(self):
         """It should Find a Supplier by ID"""
         suppliers = SupplierFactory.create_batch(5)

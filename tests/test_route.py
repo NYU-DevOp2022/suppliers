@@ -28,10 +28,11 @@ import os
 import logging
 import unittest
 
+from unittest.mock import patch
 # from unittest.mock import MagicMock, patch
 # from urllib.parse import quote_plus
 from service import app, status
-from service.model import db, init_db, Supplier
+from service.model import db, init_db, Supplier, DataValidationError
 from tests.factories import SupplierFactory
 
 # Disable all but critical errors during normal test run
@@ -258,21 +259,44 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_update_supplier_bad_id(self):
+        """It should not find an existing supplier"""
+        # create a supplier to update
+        test_supplier = SupplierFactory()
+
+        response = self.client.post(
+            BASE_URL,
+            json=test_supplier.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # update the supplier
+        new_supplier = response.get_json()
+        logging.debug(new_supplier)
+        new_supplier["id"] = 10086
+
+        response = self.client.put(
+            f"{BASE_URL}/{new_supplier['id']}",
+            json=new_supplier,
+            content_type=CONTENT_TYPE_JSON,
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)    
     ######################################################################
     #  T E S T   M O C K S
     ######################################################################
 
     # TO DO: "Keyword 'patch' not find error" need to be figure out.
-    # @patch('service.route.Supplier.find_by_name')
-    # def test_bad_request(self, bad_request_mock):
-    #     """It should return a Bad Request error from Find By Name"""
-    #     bad_request_mock.side_effect = DataValidationError()
-    #     response = self.client.get(BASE_URL, query_string='name=fido')
-    #     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    @patch('service.route.Supplier.find_by_name')
+    def test_bad_request(self, bad_request_mock):
+        """It should return a Bad Request error from Find By Name"""
+        bad_request_mock.side_effect = DataValidationError()
+        response = self.client.get(BASE_URL, query_string='name=fido')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    # @patch('service.route.Supplier.find_by_name')
-    # def test_mock_search_data(self, supplier_find_mock):
-    #     """It should showing how to mock data"""
-    #     supplier_find_mock.return_value = [MagicMock(serialize=lambda: {'name': 'fido'})]
-    #     response = self.client.get(BASE_URL, query_string='name=fido')
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #@patch('service.route.Supplier.find_by_name')
+    #def test_mock_search_data(self, supplier_find_mock):
+    #    """It should showing how to mock data"""
+    #    supplier_find_mock.return_value = [supplier_find_mock.MagicMock(serialize=lambda: {'name': 'fido'})]
+    #    response = self.client.get(BASE_URL, query_string='name=fido')
+    #    self.assertEqual(response.status_code, status.HTTP_200_OK)
