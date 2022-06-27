@@ -136,8 +136,6 @@ class Supplier(db.Model):
                     "Invalid type for integer [products]: " + str(type(data["products"]))
                 )
 
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
             raise DataValidationError("Invalid supplier: missing " + error.args[0])
         except TypeError as error:
