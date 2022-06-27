@@ -4,12 +4,9 @@
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
 [![codecov](https://codecov.io/gh/NYU-DevOp2022/suppliers/branch/master/graph/badge.svg?token=1BIJLFSVOR)](https://codecov.io/gh/NYU-DevOp2022/suppliers)
 
-This is a skeleton you can use to start your projects
+###  Project description
+The purpose of this project is to develop a suppliers system for an eCommerce web site backend as a collection RESTful services for a client by adopting DevOps methodology. 
 
-
-## Overview
-
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
 
 ## Automatic Setup
 
