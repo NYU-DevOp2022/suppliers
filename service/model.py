@@ -226,7 +226,6 @@ class Supplier(db.Model):
     #     logger.info("Processing products query for %s ...", products)
     #     return cls.query.filter(cls.products == products)
 
-
     @classmethod
     def find_by_availability(cls, available: bool = True) -> list:
         """Returns all Suppliers by their availability
