@@ -11,7 +11,21 @@ The purpose of this project is to develop a suppliers system for an eCommerce we
 
 
 ## Contents
+### Model description
 
+|  Column  |  Type  |
+| :----------: | :---------: |
+| id | Integer |
+| name | String |
+| avaliable | Boolean |
+| products | Integer |
+
+### URLS
+| RESTful APIS |  URL | Short description | Return |
+| :----------: | :---------: | :---------: | :---------: |
+| POST| \suppliers | Create a new supplier | Supplier Object|
+
+### Project files
 
 The project contains the following:
 
@@ -41,14 +55,19 @@ tests/              - test cases package
 ├── test_models.py  - test suite for business models
 └── test_routes.py  - test suite for service routes
 ```
+
+### Manually Running the server
+```
+ git clone https://github.com/NYU-DevOps2022/suppliers.git
+ cd suppliers
+ make run
+```
+
 ### Manually Running The Tests
 To run the TDD tests please run the following commands:
 ```
  git clone https://github.com/NYU-DevOps2022/suppliers.git
  cd suppliers
- vagrant up
- vagrant ssh
- cd /vagrant
  nosetests
 ```
 
