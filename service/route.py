@@ -25,10 +25,12 @@ DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
 from flask import jsonify, request, url_for, abort
+from flask.logging import create_logger
 from service.model import Supplier, DataValidationError
 from . import status  # HTTP Status Codes
 from . import app  # Import Flask application
 
+LOG = create_logger(app)
 
 ######################################################################
 # GET INDEX
@@ -36,7 +38,7 @@ from . import app  # Import Flask application
 @app.route("/")
 def index():
     """Root URL response"""
-    app.logger.info("Request for Root URL")
+    LOG.info("Request for Root URL")
     return (
         jsonify(
             name="Supplier Demo REST API Service",
@@ -53,7 +55,7 @@ def index():
 @app.route("/suppliers", methods=["GET"])
 def list_suppliers():
     """Returns all of the Suppliers"""
-    app.logger.info("Request for supplier list")
+    LOG.info("Request for supplier list")
     suppliers = []
     name = request.args.get("name")
     if name:
@@ -62,7 +64,7 @@ def list_suppliers():
         suppliers = Supplier.all()
 
     results = [supplier.serialize() for supplier in suppliers]
-    app.logger.info("Returning %d suppliers", len(results))
+    LOG.info("Returning %d suppliers", len(results))
     return jsonify(results), status.HTTP_200_OK
 
 
@@ -76,12 +78,12 @@ def get_suppliers(supplier_id):
 
     This endpoint will return a Supplier based on it's id
     """
-    app.logger.info("Request for supplier with id: %s", supplier_id)
+    LOG.info("Request for supplier with id: %s", supplier_id)
     supplier = Supplier.find(supplier_id)
     if not supplier:
         abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
 
-    app.logger.info("Returning supplier: %s", supplier.name)
+    LOG.info("Returning supplier: %s", supplier.name)
     return jsonify(supplier.serialize()), status.HTTP_200_OK
 
 
@@ -95,7 +97,7 @@ def create_suppliers():
     This endpoint will create a Supplier based the data in the body that is posted
     """
     try:
-        app.logger.info("Request to create a supplier")
+        LOG.info("Request to create a supplier")
         check_content_type("application/json")
         supplier = Supplier()
         supplier.deserialize(request.get_json())
@@ -103,7 +105,7 @@ def create_suppliers():
         message = supplier.serialize()
         location_url = url_for("get_suppliers", supplier_id=supplier.id, _external=True)
 
-        app.logger.info("Supplier with ID [%s] created.", supplier.id)
+        LOG.info("Supplier with ID [%s] created.", supplier.id)
     except DataValidationError as error:
         abort(status.HTTP_400_BAD_REQUEST, str(error))
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
@@ -118,7 +120,7 @@ def update_suppliers(supplier_id):
 
     This endpoint will update a Supplier based the body that is posted
     """
-    app.logger.info("Request to update supplier with id: %s", supplier_id)
+    LOG.info("Request to update supplier with id: %s", supplier_id)
     check_content_type("application/json")
 
     supplier = Supplier.find(supplier_id)
@@ -129,7 +131,7 @@ def update_suppliers(supplier_id):
     supplier.id = supplier_id
     supplier.update()
 
-    app.logger.info("Supplier with ID [%s] updated.", supplier.id)
+    LOG.info("Supplier with ID [%s] updated.", supplier.id)
     return jsonify(supplier.serialize()), status.HTTP_200_OK
 
 
@@ -143,12 +145,12 @@ def delete_suppliers(supplier_id):
 
     This endpoint will delete a Supplier based the id specified in the path
     """
-    app.logger.info("Request to delete supplier with id: %s", supplier_id)
+    LOG.info("Request to delete supplier with id: %s", supplier_id)
     supplier = Supplier.find(supplier_id)
     if supplier:
         supplier.delete()
 
-    app.logger.info("Supplier with ID [%s] delete complete.", supplier_id)
+    LOG.info("Supplier with ID [%s] delete complete.", supplier_id)
     return "", status.HTTP_204_NO_CONTENT
 
 
@@ -162,8 +164,8 @@ def check_content_type(media_type):
     content_type = request.headers.get("Content-Type")
     if content_type and content_type == media_type:
         return
-    app.logger.error("Invalid Content-Type: %s", content_type)
+    LOG.error("Invalid Content-Type: %s", content_type)
     abort(
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        "Content-Type must be {}".format(media_type),
+        f"Content-Type must be {format(media_type)}",
     )
