@@ -3,62 +3,82 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
 
-This is a skeleton you can use to start your projects
+Supplier team repository for DevOps & Agile Methodologies 2022 summer
 
 ## Overview
 
-This project template contains starter code for your class project. The `/service` folder contains your `models.py` file for your model and a `routes.py` file for your service. The `/tests` folder has test case starter code for testing the model and the service separately. All you need to do is add your functionality. You can use the [lab-flask-tdd](https://github.com/nyu-devops/lab-flask-tdd) for code examples to copy from.
+Here, as a Supplier team for an eCommerce site development project, implementing microservices which allows lifecycle operations on a collection of suppliers. The microservice is RESTful service.
 
-## Automatic Setup
+## Features
 
-The best way to use this repo is to start your own repo using it as a git template. To do this just press the green **Use this template** button in GitHub and this will become the source for your repository.
+This microservice has the main features for the lifetime cycle operations of suppliers as follows.
 
-## Manual Setup
-
-You can also clone this repository and then copy and paste the starter code into your project repo folder on your local computer. Be careful not to copy over your own `README.md` file so be selective in what you copy.
-
-There are 4 hidden files that you will need to copy manually if you use the Mac Finder or Windows Explorer to copy files from this folder into your repo folder.
-
-These should be copied using a bash shell as follows:
-
+#### Get a supplier
+You can get the current information of a supplier. The operation is as follows.
 ```bash
-    cp .gitignore  ../<your_repo_folder>/
-    cp .flaskenv ../<your_repo_folder>/
-    cp .gitattributes ../<your_repo_folder>/
+GET /suppliers/{supllier_id}
 ```
 
-## Contents
+#### List all suppliers
+You can get a list of all suppliers. The operation is as follows.
+```bash
+GET /suppliers
+```
+#### Create a supplier
+You can create a new supplier. The operation is as follows
+```bash
+POST /suppliers/{supplier_id}
+```
+#### Update a supplier
+You can update the information of a supplier. The operation is as follows
+```bash
+PUT /suppliers/{supllier_id}
+```
 
-The project contains the following:
+#### Delete a supplier
+You can delete a supplier. The operation is as follows.
+```bash
+DELETE /suppliers/{supllier_id}
+```
 
-```text
-.gitignore          - this will ignore vagrant and other metadata files
-.flaskenv           - Environment variables to configure Flask
-.gitattributes      - File to gix Windows CRLF issues
-.devcontainers/     - Folder with support for VSCode Remote Containers
-dot-env-example     - copy to .env to use environment variables
-requirements.txt    - list if Python libraries required by your code
-config.py           - configuration parameters
+We also implement some other features, error messages, and also test cases. The microservice is developed based on the test driven development.
 
-service/                   - service python package
-├── __init__.py            - package initializer
-├── models.py              - module with business models
-├── routes.py              - module with service routes
-└── utils                  - utility package
-    ├── error_handlers.py  - HTTP error handling code
-    ├── log_handlers.py    - logging setup code
-    └── status.py          - HTTP status constants
+## USAGE
 
-tests/              - test cases package
-├── __init__.py     - package initializer
-├── test_models.py  - test suite for business models
-└── test_routes.py  - test suite for service routes
+#### Run the service
+To run the service, use the `bash` terminal and use `honcho start` (Press Ctrl+C to exit):
+
+```bash
+honcho start
+```
+<!---
+#### Make some REST calls
+With the service running, open a second `bash` terminal and issue the following `curl` commands:
+
+Create a supplier:
+
+```bash
+curl -i -X POST http://localhost:8000/suppliers/12
+```
+
+Read a supplier:
+
+```bash
+curl -i -X GET http://localhost:8000/suppliers/12
+```
+--->
+
+#### Run the test suite
+Run the tests in a `bash` terminal using the following command:
+
+```bash
+nosetests
 ```
 
 ## License
 
-Copyright (c) John Rofrano. All rights reserved.
+Copyright (c) Zelin Gong, Zhihao Shu, Dongzhe Fan, Keigo Ando, and Junzhou Liu. All rights reserved.
 
 Licensed under the Apache License. See [LICENSE](LICENSE)
 
-This repository is part of the NYU masters class: **CSCI-GA.2820-001 DevOps and Agile Methodologies** created and taught by *John Rofrano*, Adjunct Instructor, NYU Courant Institute, Graduate Division, Computer Science, and NYU Stern School of Business.
+This repository is part of the NYU masters class: **CSCI-GA.2820-001 DevOps and Agile Methodologies** 
