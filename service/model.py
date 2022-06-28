@@ -35,6 +35,7 @@ from flask_sqlalchemy import SQLAlchemy
 logger = logging.getLogger("flask.app")
 
 # Create the SQLAlchemy object to be initialized later in init_db()
+# pylint: disable=no-member
 db = SQLAlchemy()
 
 
@@ -68,7 +69,7 @@ class Supplier(db.Model):
     ##################################################
 
     def __repr__(self):
-        return "<Supplier %r id=[%s]>" % (self.name, self.id)
+        return f"<Supplier '{self.name}' id=[{self.id}]>"
 
     def create(self):
         """
@@ -136,14 +137,12 @@ class Supplier(db.Model):
                     "Invalid type for integer [products]: " + str(type(data["products"]))
                 )
 
-        except AttributeError as error:
-            raise DataValidationError("Invalid attribute: " + error.args[0])
         except KeyError as error:
-            raise DataValidationError("Invalid supplier: missing " + error.args[0])
+            raise DataValidationError("Invalid supplier: missing " + error.args[0]) from error
         except TypeError as error:
             raise DataValidationError(
                 "Invalid supplier: body of request contained bad or no data " + str(error)
-            )
+            ) from error
         return self
 
     ##################################################

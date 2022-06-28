@@ -1,12 +1,12 @@
-# NYU DevOps Project Template
+# NYU DevOps2022 Suppliers
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Language-Python-blue.svg)](https://python.org/)
+[![codecov](https://codecov.io/gh/NYU-DevOp2022/suppliers/branch/master/graph/badge.svg?token=1BIJLFSVOR)](https://codecov.io/gh/NYU-DevOp2022/suppliers)
 
 Supplier team repository for DevOps & Agile Methodologies 2022 summer
 
-## Overview
-
+##  Project description
 Here, as a Supplier team for an eCommerce site development project, implementing microservices which allows lifecycle operations on a collection of suppliers. The microservice is RESTful service.
 
 ## Features
@@ -43,6 +43,7 @@ DELETE /suppliers/{supllier_id}
 
 We also implement some other features, error messages, and also test cases. The microservice is developed based on the test driven development.
 
+<<<<<<< HEAD
 ## USAGE
 
 #### Run the service
@@ -73,6 +74,30 @@ Run the tests in a `bash` terminal using the following command:
 
 ```bash
 nosetests
+```
+
+### Manually Running the server
+```
+ git clone https://github.com/NYU-DevOps2022/suppliers.git
+ cd suppliers
+ make run
+```
+
+### Manually Running The Tests
+To run the TDD tests please run the following commands:
+```
+ git clone https://github.com/NYU-DevOps2022/suppliers.git
+ cd suppliers
+ nosetests
+```
+
+### Running Pylint: (Current Score 10/10)
+To run the pylint score please run the following commands:
+```
+ git clone https://github.com/NYU-DevOps2022/suppliers.git
+ cd suppliers/service
+ pylint model.py
+ pylint route.py
 ```
 
 ## License
