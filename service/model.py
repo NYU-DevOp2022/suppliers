@@ -27,8 +27,16 @@ id(int) - the id of the supplier
 name (string) - the name of the supplier
 available (boolean) - indicate whether the supplier is active or not
 products (list of int) - a list of product id provided by the supplier
+------
+Item -- An Item
+
+Attributes:
+-----------
+id(int) - the id of the item
+name(string) - the name of the item
 """
 import logging
+from pydoc import classname
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -42,12 +50,16 @@ db = SQLAlchemy()
 def init_db(app):
     """Initialize the SQLAlchemy app"""
     Supplier.init_db(app)
+    Item.init_db(app)
 
 
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
 
-
+supplier_item = db.Table('supplier_to_item',
+                            db.Column('supplier_id', db.Integer, db.ForeignKey('supplier.id'), primary_key= True),
+                            db.Column('item_id', db.Integer, db.ForeignKey('item.id'), primary_key= True)
+                            )
 class Supplier(db.Model):
     """
     Class that represents a Supplier
@@ -59,10 +71,17 @@ class Supplier(db.Model):
     ##################################################
     # Table Schema
     ##################################################
+    __tablename__ = 'supplier'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
     products = db.Column(db.Integer, nullable=True)
+
+    supplier_to_item = db.relationship('Item',
+                                        secondary= supplier_item,
+                                        lazy= 'dynamic'
+                                        )
+
 
     ##################################################
     # INSTANCE METHODS
@@ -211,6 +230,30 @@ class Supplier(db.Model):
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
 
+    @classmethod
+    def create_item_for_supplier(cls, supplier_id: int, item):
+        supplier = cls.query.filter(cls.id == supplier_id).first()
+        supplier.supplier_to_item.append(item)
+
+        logger.info("Add an item for supplier %s", supplier_id)
+        db.session.commit()
+
+    @classmethod
+    def delete_item_for_supplier(cls, supplier_id: int, item):
+        supplier = cls.query.filter(cls.id == supplier_id).first()
+        supplier.supplier_to_item.remove(item)
+
+        logger.info("Delete an item for supplier %s", supplier_id)
+        db.session.commit()
+    
+    @classmethod
+    def list_items_of_supplier(cls, supplier_id: int):
+        
+        supplier = cls.query.filter(cls.id == supplier_id).first()
+
+        logger.info("Processing all items of a supplier")
+        return supplier.supplier_to_item.all()
+    
     # @classmethod
     # def find_by_products(cls, products: int) -> list:
     #     """Returns all of the suppliers in a category
@@ -252,3 +295,91 @@ class Supplier(db.Model):
     #     """
     #     logger.info("Processing gender query for %s ...", gender.name)
     #     return cls.query.filter(cls.gender == gender)
+class Item(db.Model):
+
+    __tablename__ = 'item'
+    id = db.Column(db.Integer, primary_key= True)
+    name = db.Column(db.String(100), nullable= False)
+
+    ##################################################
+    # INSTANCE METHODS
+    ##################################################
+
+    def __repr__(self):
+        return f"<Item '{self.name}' id=[{self.id}]>"
+
+    def serialize(self) -> dict:
+        """Serializes an Item into a dictionary"""
+        return {
+            "id": self.id,
+            "name": self.name,
+        }
+    
+    def deserialize(self, data: dict):
+        """
+        Deserializes an Item from a dictionary
+        Args:
+            data (dict): A dictionary containing the Item data
+        """
+        try:
+            if isinstance(data["name"], str):
+                self.name = data["name"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for str [name]: " + str(type(data["name"]))
+                )
+
+            if isinstance(data["id"], int):
+                if data["id"] >= 0:
+                    self.id = data["id"]
+                else:
+                    raise DataValidationError(
+                        "Invalid value for [id]: " + str(type(data["id"]))
+                    )
+            else:
+                raise DataValidationError(
+                    "Invalid type for integer [id]: " + str(type(data["id"]))
+                )
+
+        except KeyError as error:
+            raise DataValidationError("Invalid supplier: missing " + error.args[0]) from error
+        except TypeError as error:
+            raise DataValidationError(
+                "Invalid supplier: body of request contained bad or no data " + str(error)
+            ) from error
+        return self    
+    
+    @classmethod
+    def init_db(cls, app: Flask):
+        """Initializes the database session
+
+        :param app: the Flask app
+        :type data: Flask
+
+        """
+        logger.info("Initializing database")
+        # This is where we initialize SQLAlchemy from the Flask app
+        db.init_app(app)
+        app.app_context().push()
+        db.create_all()  # make our sqlalchemy tables
+
+    def create(self):
+        """
+        Creates an Item to the database
+        """
+        logger.info("Creating %s", self.name)
+        # id must be none to generate next primary key
+        self.id = None  # pylint: disable=invalid-name
+        db.session.add(self)
+        db.session.commit()
+    
+    @classmethod
+    def all(cls) -> list:
+        logger.info("Processing all Items")
+        return cls.query.all()
+
+    @classmethod
+    def find_by_id(cls, id: int) -> list:
+
+        logger.info("Processing name query for %s ...", id)
+        return cls.query.filter(cls.id == id).first()
