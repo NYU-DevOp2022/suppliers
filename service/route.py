@@ -24,8 +24,7 @@ PUT /suppliers/{id} - updates a Supplier record in the database
 DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
-from crypt import methods
-from unittest import result
+
 from flask import jsonify, request, url_for, abort
 from flask.logging import create_logger
 from service.model import Supplier, DataValidationError, Item
@@ -180,7 +179,6 @@ def create_items():
         item.deserialize(request.get_json())
         item.create()
         message = item.serialize()
-    #location_url = url_for("get_items", item_id=item.id, _external=True)
 
         LOG.info("Item with ID [%s] created.", item.id)
     except DataValidationError as error:
