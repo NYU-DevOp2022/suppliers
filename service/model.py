@@ -56,9 +56,9 @@ class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
 
 
-supplier_item = db.Table('supplier_to_item', 
-                            db.Column('supplier_id', db.Integer, db.ForeignKey('supplier.id'), primary_key=True), 
-                            db.Column('item_id', db.Integer, db.ForeignKey('item.id'), primary_key=True))
+supplier_item = db.Table('supplier_to_item',
+                        db.Column('supplier_id', db.Integer, db.ForeignKey('supplier.id'), primary_key=True),
+                        db.Column('item_id', db.Integer, db.ForeignKey('item.id'), primary_key=True))
 
 
 class Supplier(db.Model):
@@ -79,10 +79,8 @@ class Supplier(db.Model):
     products = db.Column(db.Integer, nullable=True)
 
     supplier_to_item = db.relationship('Item',
-                                        secondary=supplier_item,
-                                        lazy= 'dynamic'
-                                        )
-
+                                    secondary=supplier_item,
+                                    lazy= 'dynamic')
 
     ##################################################
     # INSTANCE METHODS
