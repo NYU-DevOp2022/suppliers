@@ -37,6 +37,8 @@ LOG = create_logger(app)
 ######################################################################
 # GET INDEX
 ######################################################################
+
+
 @app.route("/")
 def index():
     """Root URL response"""
@@ -83,7 +85,8 @@ def get_suppliers(supplier_id):
     LOG.info("Request for supplier with id: %s", supplier_id)
     supplier = Supplier.find(supplier_id)
     if not supplier:
-        abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
+        abort(status.HTTP_404_NOT_FOUND,
+              f"Supplier with id '{supplier_id}' was not found.")
 
     LOG.info("Returning supplier: %s", supplier.name)
     return jsonify(supplier.serialize()), status.HTTP_200_OK
@@ -105,7 +108,8 @@ def create_suppliers():
         supplier.deserialize(request.get_json())
         supplier.create()
         message = supplier.serialize()
-        location_url = url_for("get_suppliers", supplier_id=supplier.id, _external=True)
+        location_url = url_for(
+            "get_suppliers", supplier_id=supplier.id, _external=True)
 
         LOG.info("Supplier with ID [%s] created.", supplier.id)
     except DataValidationError as error:
@@ -115,6 +119,8 @@ def create_suppliers():
 ######################################################################
 # UPDATE AN EXISTING SUPPLIER
 ######################################################################
+
+
 @app.route("/suppliers/<int:supplier_id>", methods=["PUT"])
 def update_suppliers(supplier_id):
     """
@@ -127,7 +133,8 @@ def update_suppliers(supplier_id):
 
     supplier = Supplier.find(supplier_id)
     if not supplier:
-        abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
+        abort(status.HTTP_404_NOT_FOUND,
+              f"Supplier with id '{supplier_id}' was not found.")
 
     supplier.deserialize(request.get_json())
     supplier.id = supplier_id
@@ -158,6 +165,8 @@ def delete_suppliers(supplier_id):
 ######################################################################
 # ADD A NEW Item
 ######################################################################
+
+
 @app.route("/items", methods=["POST"])
 def create_items():
     """
@@ -171,7 +180,7 @@ def create_items():
         item.deserialize(request.get_json())
         item.create()
         message = item.serialize()
-        #location_url = url_for("get_items", item_id=item.id, _external=True)
+    #location_url = url_for("get_items", item_id=item.id, _external=True)
 
         LOG.info("Item with ID [%s] created.", item.id)
     except DataValidationError as error:
@@ -181,6 +190,8 @@ def create_items():
 ######################################################################
 # LIST ALL ITEMS
 ######################################################################
+
+
 @app.route("/items", methods=["GET"])
 def list_items():
     """Returns all of the Suppliers"""
@@ -206,7 +217,7 @@ def add_item_suppliers(supplier_id):
     LOG.info("Request to add an item to a supplier with id: %s", supplier_id)
     item_id = request.args.get("item_id")
     item = Item.find_by_id(item_id)
-    Supplier.create_item_for_supplier(supplier_id= supplier_id, item= item)
+    Supplier.create_item_for_supplier(supplier_id=supplier_id, item=item)
     message = {"supplier_id": supplier_id, "item_id": item_id}
 
     LOG.info("Successfully add an item %s to supplier %s", item_id, supplier_id)
@@ -215,6 +226,8 @@ def add_item_suppliers(supplier_id):
 ######################################################################
 # LIST ALL ITEMS OF A SUPPLIER
 ######################################################################
+
+
 @app.route("/suppliers/<int:supplier_id>/items", methods=["GET"])
 def list_item_suppliers(supplier_id):
     LOG.info("List all items of supplier %s", supplier_id)
@@ -228,6 +241,8 @@ def list_item_suppliers(supplier_id):
 ######################################################################
 # DELETE A SUPPLIER
 ######################################################################
+
+
 @app.route("/suppliers/<int:supplier_id>/items", methods=["DELETE"])
 def delete_item_suppliers(supplier_id):
     LOG.info("Delete an item of supplier %s", supplier_id)
@@ -236,7 +251,8 @@ def delete_item_suppliers(supplier_id):
 
     Supplier.delete_item_for_supplier(supplier_id, item)
 
-    LOG.info("Item with ID [%s] delete for supplier %s complete.", item_id, supplier_id)
+    LOG.info(
+        "Item with ID [%s] delete for supplier %s complete.", item_id, supplier_id)
     return "", status.HTTP_204_NO_CONTENT
 
 ######################################################################

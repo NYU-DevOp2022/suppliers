@@ -57,8 +57,9 @@ class DataValidationError(Exception):
 
 
 supplier_item = db.Table('supplier_to_item',
-                        db.Column('supplier_id', db.Integer, db.ForeignKey('supplier.id'), primary_key=True),
-                        db.Column('item_id', db.Integer, db.ForeignKey('item.id'), primary_key=True))
+                         db.Column('supplier_id', db.Integer, db.ForeignKey(
+                             'supplier.id'), primary_key=True),
+                         db.Column('item_id', db.Integer, db.ForeignKey('item.id'), primary_key=True))
 
 
 class Supplier(db.Model):
@@ -79,8 +80,8 @@ class Supplier(db.Model):
     products = db.Column(db.Integer, nullable=True)
 
     supplier_to_item = db.relationship('Item',
-                                    secondary=supplier_item,
-                                    lazy= 'dynamic')
+                                       secondary=supplier_item,
+                                       lazy='dynamic')
 
     ##################################################
     # INSTANCE METHODS
@@ -140,7 +141,8 @@ class Supplier(db.Model):
                 self.available = data["available"]
             else:
                 raise DataValidationError(
-                    "Invalid type for boolean [available]: " + str(type(data["available"]))
+                    "Invalid type for boolean [available]: " +
+                    str(type(data["available"]))
                 )
 
             if isinstance(data["products"], int):
@@ -148,18 +150,22 @@ class Supplier(db.Model):
                     self.products = data["products"]
                 else:
                     raise DataValidationError(
-                        "Invalid value for [products]: " + str(type(data["products"]))
+                        "Invalid value for [products]: " +
+                        str(type(data["products"]))
                     )
             else:
                 raise DataValidationError(
-                    "Invalid type for integer [products]: " + str(type(data["products"]))
+                    "Invalid type for integer [products]: " +
+                    str(type(data["products"]))
                 )
 
         except KeyError as error:
-            raise DataValidationError("Invalid supplier: missing " + error.args[0]) from error
+            raise DataValidationError(
+                "Invalid supplier: missing " + error.args[0]) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid supplier: body of request contained bad or no data " + str(error)
+                "Invalid supplier: body of request contained bad or no data " +
+                str(error)
             ) from error
         return self
 
@@ -244,15 +250,15 @@ class Supplier(db.Model):
 
         logger.info("Delete an item for supplier %s", supplier_id)
         db.session.commit()
-    
+
     @classmethod
     def list_items_of_supplier(cls, supplier_id: int):
-        
+
         supplier = cls.query.filter(cls.id == supplier_id).first()
 
         logger.info("Processing all items of a supplier")
         return supplier.supplier_to_item.all()
-    
+
     # @classmethod
     # def find_by_products(cls, products: int) -> list:
     #     """Returns all of the suppliers in a category
@@ -294,11 +300,13 @@ class Supplier(db.Model):
     #     """
     #     logger.info("Processing gender query for %s ...", gender.name)
     #     return cls.query.filter(cls.gender == gender)
+
+
 class Item(db.Model):
 
     __tablename__ = 'item'
-    id = db.Column(db.Integer, primary_key= True)
-    name = db.Column(db.String(100), nullable= False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
 
     ##################################################
     # INSTANCE METHODS
@@ -313,7 +321,7 @@ class Item(db.Model):
             "id": self.id,
             "name": self.name,
         }
-    
+
     def deserialize(self, data: dict):
         """
         Deserializes an Item from a dictionary
@@ -341,13 +349,15 @@ class Item(db.Model):
                 )
 
         except KeyError as error:
-            raise DataValidationError("Invalid supplier: missing " + error.args[0]) from error
+            raise DataValidationError(
+                "Invalid supplier: missing " + error.args[0]) from error
         except TypeError as error:
             raise DataValidationError(
-                "Invalid supplier: body of request contained bad or no data " + str(error)
+                "Invalid supplier: body of request contained bad or no data " +
+                str(error)
             ) from error
-        return self    
-    
+        return self
+
     @classmethod
     def init_db(cls, app: Flask):
         """Initializes the database session
@@ -371,7 +381,7 @@ class Item(db.Model):
         self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
         db.session.commit()
-    
+
     @classmethod
     def all(cls) -> list:
         logger.info("Processing all Items")
