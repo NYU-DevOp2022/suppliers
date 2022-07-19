@@ -131,7 +131,6 @@ class TestSupplierService(unittest.TestCase):
     #  T E S T   C A S E S
     ######################################################################
 
-
     def test_index(self):
         """It should call the Home Page"""
         response = self.client.get("/")
