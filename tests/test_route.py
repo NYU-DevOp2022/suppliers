@@ -95,6 +95,7 @@ class TestSupplierService(unittest.TestCase):
             suppliers.append(test_supplier)
         return suppliers
 
+
     def _create_items(self, count):
         items = []
         for _ in range(count):
@@ -109,6 +110,24 @@ class TestSupplierService(unittest.TestCase):
             test_item.id = new_item["id"]
             items.append(test_item)
         return items
+
+    def _create_suppliers_rating(self, count, rating):
+        """Factory method to create suppliers in bulk"""
+        suppliers = []
+        for _ in range(count):
+            test_supplier = SupplierFactory()
+            test_supplier.rating = rating
+            response = self.client.post(
+                BASE_URL, json=test_supplier.serialize(), content_type=CONTENT_TYPE_JSON
+            )
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, "Could not create test supplier"
+            )
+            new_supplier = response.get_json()
+            test_supplier.id = new_supplier["id"]
+            suppliers.append(test_supplier)
+        return suppliers
+
 
     ######################################################################
     #  T E S T   C A S E S
@@ -137,6 +156,21 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data["name"], test_supplier.name)
+
+    def test_get_suppliers_by_rating(self):
+        """It should Get all Suppliers based on rating"""
+        # get the id of the suppliers
+        test_supplier = self._create_suppliers_rating(5, 5.0)[0]
+        all = self.client.get(BASE_URL)
+        self.assertEqual(all.status_code, status.HTTP_200_OK)
+        alldata = all.get_json()
+        self.assertEqual(len(alldata), 5)
+        response = self.client.get(f"{BASE_URL}/rating/{test_supplier.rating}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(test_supplier.rating, 5.0)
+        self.assertEqual(len(data), 5)
+        self.assertEqual(data[0]["rating"], 5.0)
 
     def test_get_supplier_not_found(self):
         """It should not Get a Supplier thats not found"""
