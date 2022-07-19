@@ -32,4 +32,6 @@ class SupplierFactory(factory.Factory):
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("first_name")
     available = FuzzyChoice(choices=[True, False])
-    products = factory.Sequence(lambda n: n)
+    address = factory.Faker("address")
+    rating = factory.Faker("pyfloat", right_digits= 1)
+    
