@@ -94,7 +94,7 @@ class TestSupplierService(unittest.TestCase):
             test_supplier.id = new_supplier["id"]
             suppliers.append(test_supplier)
         return suppliers
-    
+
     def _create_items(self, count):
         items = []
         for _ in range(count):
@@ -237,7 +237,7 @@ class TestSupplierService(unittest.TestCase):
         test_item = self._create_items(1)[0]
         response = self.client.delete(f"{ITEM_URL}/{test_item.id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(len(response.data), 0) 
+        self.assertEqual(len(response.data), 0)
 
     def test_get_item_list(self):
         """It should Get a list of Items"""
@@ -245,12 +245,12 @@ class TestSupplierService(unittest.TestCase):
         response = self.client.get(ITEM_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
-    
+
     def test_add_item_suppliers(self):
         test_supplier = self._create_suppliers(1)[0]
         test_item = self._create_items(1)[0]
 
-        test_dict = {"supplier_id":test_supplier.id, "item_id":test_item.id}
+        test_dict = {"supplier_id": test_supplier.id, "item_id": test_item.id}
         test_json = json.dumps(test_dict)
 
         response = self.client.post(
@@ -258,7 +258,7 @@ class TestSupplierService(unittest.TestCase):
             json=test_json,
             content_type=CONTENT_TYPE_JSON
         )
-        
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_list_item_suppliers(self):
@@ -266,7 +266,7 @@ class TestSupplierService(unittest.TestCase):
         test_supplier = self._create_suppliers(1)[0]
         test_item = self._create_items(1)[0]
 
-        test_dict = {"supplier_id":test_supplier.id, "item_id":test_item.id}
+        test_dict = {"supplier_id": test_supplier.id, "item_id": test_item.id}
         test_json = json.dumps(test_dict)
 
         response = self.client.post(
@@ -278,13 +278,13 @@ class TestSupplierService(unittest.TestCase):
 
         response = self.client.get(f"{BASE_URL}/{test_supplier.id}/items")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
+
     def test_delete_item_suppliers(self):
 
         test_supplier = self._create_suppliers(1)[0]
         test_item = self._create_items(1)[0]
 
-        test_dict = {"supplier_id":test_supplier.id, "item_id":test_item.id}
+        test_dict = {"supplier_id": test_supplier.id, "item_id": test_item.id}
         test_json = json.dumps(test_dict)
 
         response = self.client.post(
@@ -292,15 +292,12 @@ class TestSupplierService(unittest.TestCase):
             json=test_json,
             content_type=CONTENT_TYPE_JSON
         )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)    
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        response = self.client.delete(f"{BASE_URL}/{test_supplier.id}/items?item_id={test_item.id}")
+        response = self.client.delete(
+            f"{BASE_URL}/{test_supplier.id}/items?item_id={test_item.id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(len(response.data), 0) 
-
-
-
-
+        self.assertEqual(len(response.data), 0)
 
     # TO DO: Need to modify route.py to complement this test.
     # def test_query_supplier_list_by_products(self):
@@ -373,7 +370,7 @@ class TestSupplierService(unittest.TestCase):
             content_type=CONTENT_TYPE_JSON,
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    
+
     def test_create_item_no_data(self):
         """It should not Create an item with missing data"""
         response = self.client.post(
@@ -381,7 +378,7 @@ class TestSupplierService(unittest.TestCase):
             json={},
             content_type=CONTENT_TYPE_JSON
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)    
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     ######################################################################
     #  T E S T   M O C K S

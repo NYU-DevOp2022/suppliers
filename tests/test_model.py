@@ -368,4 +368,4 @@ class TestSupplierModel(unittest.TestCase):
             item.create()
         id = items[0].id
         found = Item.find_by_id(id)
-        self.assertEqual(found.name, items[0].name)   
+        self.assertEqual(found.name, items[0].name)

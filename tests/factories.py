@@ -14,7 +14,6 @@
 """
 Test Factory to make fake objects for testing
 """
-from unicodedata import name
 import factory
 # from datetime import date
 # from factory.fuzzy import FuzzyDate
@@ -36,6 +35,7 @@ class SupplierFactory(factory.Factory):
     address = factory.Faker("address")
     rating = factory.Faker("pyfloat", right_digits=1)
 
+
 class ItemFactory(factory.Factory):
     """Creates fake items that you don't have to feed"""
 
@@ -43,6 +43,6 @@ class ItemFactory(factory.Factory):
         """Maps factory to data model"""
 
         model = Item
-    
+
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("company")

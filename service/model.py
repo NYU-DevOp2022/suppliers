@@ -141,7 +141,7 @@ class Supplier(db.Model):
                 raise DataValidationError(
                     "Invalid type for str [name]: " + str(type(data["name"]))
                 )
-            
+
             if isinstance(data["address"], str):
                 self.address = data["address"]
             else:
