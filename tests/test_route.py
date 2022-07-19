@@ -27,12 +27,13 @@ Test cases can be run with the following:
 import os
 import logging
 import unittest
+import json
 
 # from unittest.mock import MagicMock, patch
 # from urllib.parse import quote_plus
 from service import app, status
-from service.model import db, init_db, Supplier, DataValidationError
-from tests.factories import SupplierFactory
+from service.model import Item, db, init_db, Supplier, DataValidationError
+from tests.factories import ItemFactory, SupplierFactory
 from unittest.mock import patch
 
 # Disable all but critical errors during normal test run
@@ -44,6 +45,7 @@ DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
 )
 BASE_URL = "/suppliers"
+ITEM_URL = "/items"
 CONTENT_TYPE_JSON = "application/json"
 
 
@@ -92,6 +94,21 @@ class TestSupplierService(unittest.TestCase):
             test_supplier.id = new_supplier["id"]
             suppliers.append(test_supplier)
         return suppliers
+    
+    def _create_items(self, count):
+        items = []
+        for _ in range(count):
+            test_item = ItemFactory()
+            response = self.client.post(
+                ITEM_URL, json=test_item.serialize(), content_type=CONTENT_TYPE_JSON
+            )
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, "Could not create test item"
+            )
+            new_item = response.get_json()
+            test_item.id = new_item["id"]
+            items.append(test_item)
+        return items
 
     ######################################################################
     #  T E S T   C A S E S
@@ -162,7 +179,8 @@ class TestSupplierService(unittest.TestCase):
 
     def test_update_bad_supplier(self):
         NotFoundResponse = self.client.get(f"{BASE_URL}/0")
-        self.assertEqual(NotFoundResponse.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(NotFoundResponse.status_code,
+                         status.HTTP_404_NOT_FOUND)
 
     def test_update_supplier(self):
         """It should Update an existing supplier"""
@@ -199,6 +217,91 @@ class TestSupplierService(unittest.TestCase):
         response = self.client.get(f"{BASE_URL}/{test_supplier.id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_create_item(self):
+        """It should Create a new item"""
+        test_item = ItemFactory()
+        logging.debug("Test Item: %s", test_item.serialize())
+        response = self.client.post(
+            ITEM_URL,
+            json=test_item.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Check the data is correct
+        new_item = response.get_json()
+        self.assertEqual(new_item["name"], test_item.name)
+
+    def test_delete_item(self):
+        """It should Delete an item"""
+        test_item = self._create_items(1)[0]
+        response = self.client.delete(f"{ITEM_URL}/{test_item.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data), 0) 
+
+    def test_get_item_list(self):
+        """It should Get a list of Items"""
+        self._create_items(5)
+        response = self.client.get(ITEM_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+    
+    def test_add_item_suppliers(self):
+        test_supplier = self._create_suppliers(1)[0]
+        test_item = self._create_items(1)[0]
+
+        test_dict = {"supplier_id":test_supplier.id, "item_id":test_item.id}
+        test_json = json.dumps(test_dict)
+
+        response = self.client.post(
+            f"{BASE_URL}/{test_supplier.id}/items?item_id={test_item.id}",
+            json=test_json,
+            content_type=CONTENT_TYPE_JSON
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_list_item_suppliers(self):
+
+        test_supplier = self._create_suppliers(1)[0]
+        test_item = self._create_items(1)[0]
+
+        test_dict = {"supplier_id":test_supplier.id, "item_id":test_item.id}
+        test_json = json.dumps(test_dict)
+
+        response = self.client.post(
+            f"{BASE_URL}/{test_supplier.id}/items?item_id={test_item.id}",
+            json=test_json,
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.get(f"{BASE_URL}/{test_supplier.id}/items")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_delete_item_suppliers(self):
+
+        test_supplier = self._create_suppliers(1)[0]
+        test_item = self._create_items(1)[0]
+
+        test_dict = {"supplier_id":test_supplier.id, "item_id":test_item.id}
+        test_json = json.dumps(test_dict)
+
+        response = self.client.post(
+            f"{BASE_URL}/{test_supplier.id}/items?item_id={test_item.id}",
+            json=test_json,
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)    
+
+        response = self.client.delete(f"{BASE_URL}/{test_supplier.id}/items?item_id={test_item.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data), 0) 
+
+
+
+
+
     # TO DO: Need to modify route.py to complement this test.
     # def test_query_supplier_list_by_products(self):
     #     """It should Query suppliers by Products"""
@@ -232,7 +335,8 @@ class TestSupplierService(unittest.TestCase):
     def test_create_supplier_no_content_type(self):
         """It should not Create a supplier with no content type"""
         response = self.client.post(BASE_URL)
-        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        self.assertEqual(response.status_code,
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_create_supplier_bad_available(self):
         """It should not Create a supplier with bad available data"""
@@ -269,6 +373,15 @@ class TestSupplierService(unittest.TestCase):
             content_type=CONTENT_TYPE_JSON,
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+    def test_create_item_no_data(self):
+        """It should not Create an item with missing data"""
+        response = self.client.post(
+            ITEM_URL,
+            json={},
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)    
 
     ######################################################################
     #  T E S T   M O C K S

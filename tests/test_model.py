@@ -29,9 +29,9 @@ import logging
 import unittest
 # from datetime import date
 from werkzeug.exceptions import NotFound
-from service.model import Supplier, DataValidationError, db
+from service.model import Item, Supplier, DataValidationError, db
 from service import app
-from tests.factories import SupplierFactory
+from tests.factories import ItemFactory, SupplierFactory
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
@@ -223,6 +223,22 @@ class TestSupplierModel(unittest.TestCase):
         supplier = Supplier()
         self.assertRaises(DataValidationError, supplier.deserialize, data)
 
+    def test_deserialize_bad_address(self):
+        """It should not serialize a bad products attribute"""
+        test_supplier = SupplierFactory()
+        data = test_supplier.serialize()
+        data["address"] = 123
+        supplier = Supplier()
+        self.assertRaises(DataValidationError, supplier.deserialize, data)
+
+    def test_deserialize_bad_rating(self):
+        """It should not serialize a bad products attribute"""
+        test_supplier = SupplierFactory()
+        data = test_supplier.serialize()
+        data["rating"] = "111"
+        supplier = Supplier()
+        self.assertRaises(DataValidationError, supplier.deserialize, data)
+
     def test_find_supplier(self):
         """It should Find a Supplier by ID"""
         suppliers = SupplierFactory.create_batch(5)
@@ -282,3 +298,74 @@ class TestSupplierModel(unittest.TestCase):
     def test_find_or_404_not_found(self):
         """It should return 404 not found"""
         self.assertRaises(NotFound, Supplier.find_or_404, 0)
+
+    def test_create_an_item(self):
+        """It should Create an item and assert that it exists"""
+        item = Item(name="ps5")
+        self.assertEqual(str(item), "<Item 'ps5' id=[None]>")
+        self.assertTrue(item is not None)
+        self.assertEqual(item.id, None)
+        self.assertEqual(item.name, "ps5")
+
+    def test_add_an_item(self):
+        """It should Create an item and add it to the database"""
+        items = Item.all()
+        self.assertEqual(items, [])
+        item = Item(name="ps5")
+        self.assertTrue(item is not None)
+        self.assertEqual(item.id, None)
+        item.create()
+        # Assert that it was assigned an id and shows up in the database
+        self.assertIsNotNone(item.id)
+        items = item.all()
+        self.assertEqual(len(items), 1)
+
+    def test_serialize_an_item(self):
+        """It should serialize a Supplier"""
+        item = ItemFactory()
+        data = item.serialize()
+        self.assertNotEqual(data, None)
+        self.assertIn("id", data)
+        self.assertEqual(data["id"], item.id)
+        self.assertIn("name", data)
+        self.assertEqual(data["name"], item.name)
+
+    def test_deserialize_bad_item_name(self):
+        """It should not deserialize a bad available attribute"""
+        test_item = ItemFactory()
+        data = test_item.serialize()
+        # Here replace boolean attribute with a string value, type mismatch
+        data["name"] = 123
+        item = Item()
+        self.assertRaises(DataValidationError, item.deserialize, data)
+
+    def test_deserialize_an_item(self):
+        """It should de-serialize a Supplier"""
+        data = ItemFactory().serialize()
+        item = Item()
+        item.deserialize(data)
+        self.assertNotEqual(item, None)
+        self.assertEqual(item.id, None)
+        self.assertNotEqual(item.name, 1)
+        self.assertEqual(item.name, data["name"])
+
+    def test_deserialize_missing_data_item(self):
+        """It should not deserialize an Item with missing data"""
+        data = {"id": 1}
+        item = Item()
+        self.assertRaises(DataValidationError, item.deserialize, data)
+
+    def test_deserialize_bad_data_item(self):
+        """It should not deserialize bad data"""
+        data = "this is not a dictionary"
+        item = Item()
+        self.assertRaises(DataValidationError, item.deserialize, data)
+
+    def test_find_by_item_id(self):
+        """It should Find an Item by id"""
+        items = ItemFactory.create_batch(5)
+        for item in items:
+            item.create()
+        id = items[0].id
+        found = Item.find_by_id(id)
+        self.assertEqual(found.name, items[0].name)   

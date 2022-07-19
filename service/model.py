@@ -141,6 +141,7 @@ class Supplier(db.Model):
                 raise DataValidationError(
                     "Invalid type for str [name]: " + str(type(data["name"]))
                 )
+            
             if isinstance(data["address"], str):
                 self.address = data["address"]
             else:
@@ -341,18 +342,6 @@ class Item(db.Model):
                     "Invalid type for str [name]: " + str(type(data["name"]))
                 )
 
-            if isinstance(data["id"], int):
-                if data["id"] >= 0:
-                    self.id = data["id"]
-                else:
-                    raise DataValidationError(
-                        "Invalid value for [id]: " + str(type(data["id"]))
-                    )
-            else:
-                raise DataValidationError(
-                    "Invalid type for integer [id]: " + str(type(data["id"]))
-                )
-
         except KeyError as error:
             raise DataValidationError(
                 "Invalid supplier: missing " + error.args[0]) from error
@@ -386,6 +375,12 @@ class Item(db.Model):
         # id must be none to generate next primary key
         self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        """Removes an item from the data store"""
+        logger.info("Deleting %s", self.name)
+        db.session.delete(self)
         db.session.commit()
 
     @classmethod
