@@ -165,6 +165,25 @@ class TestSupplierModel(unittest.TestCase):
         suppliers = Supplier.all()
         self.assertEqual(len(suppliers), 5)
 
+    def test_find_all_suppliers_by_rating(self):
+        """It should List all Suppliers in the database based on rating"""
+        suppliers = Supplier.all()
+        self.assertEqual(suppliers, [])
+        s_empty = Supplier.all()
+        self.assertEqual(s_empty, [])
+        # Create 5 Suppliers with rating 5.0
+        for i in range(10):
+            supplier = SupplierFactory()
+            supplier.create()
+            supplier.rating = 5.0
+        # See if we get all the suppliers
+        suppliers = Supplier.find_by_rating(5.0)
+        suppliers = [supplier.serialize() for supplier in suppliers]
+        s_empty = Supplier.find_by_rating(1.0)
+        s_empty = [supplier.serialize() for supplier in s_empty]
+        self.assertEqual(len(suppliers), 10)
+        self.assertEqual(len(s_empty), 0)
+
     def test_serialize_a_supplier(self):
         """It should serialize a Supplier"""
         supplier = SupplierFactory()

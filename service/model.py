@@ -241,6 +241,20 @@ class Supplier(db.Model):
         return cls.query.filter(cls.name == name)
 
     @classmethod
+    def find_by_rating(cls, rating: float) -> list:
+        """Returns all Suppliers with the given rating
+
+        :param rating: the rating of the Suppliers you want to match
+        :type rating: float
+
+        :return: a collection of Suppliers with that rating
+        :rtype: list
+
+        """
+        logger.info("Processing rating query for %s ...", rating)
+        return cls.query.filter(cls.rating == rating)
+
+    @classmethod
     def create_item_for_supplier(cls, supplier_id: int, item):
         supplier = cls.query.filter(cls.id == supplier_id).first()
         supplier.supplier_to_item.append(item)
@@ -291,6 +305,20 @@ class Supplier(db.Model):
         """
         logger.info("Processing available query for %s ...", available)
         return cls.query.filter(cls.available == available)
+
+    @classmethod
+    def find_by_rating(cls, rating: float = 5.0) -> list:
+        """Returns all Suppliers by their availability
+
+        :param rating: rating for suppliers that are equal to the rating
+        :type rating: str
+
+        :return: a collection of Suppliers that are equal to the rating
+        :rtype: list
+
+        """
+        logger.info("Processing rating query for %s ...", rating)
+        return cls.query.filter(cls.rating == rating)
 
     # @classmethod
     # def find_by_gender(cls, gender: Gender = Gender.UNKNOWN) -> list:

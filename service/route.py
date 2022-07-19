@@ -72,6 +72,35 @@ def list_suppliers():
 
 
 ######################################################################
+# LIST ALL SUPPLIERS BASED ON RATING
+######################################################################
+@app.route("/suppliers/rating/<float:rating>", methods=["GET"])
+def list_suppliers_by_rating(rating):
+    """Returns all of the Suppliers"""
+    LOG.info("Request for supplier list by rating")
+    suppliers = []
+    suppliers = Supplier.find_by_rating(rating)
+    results = [supplier.serialize() for supplier in suppliers]
+    LOG.info("Returning %d suppliers", len(results))
+    return jsonify(results), status.HTTP_200_OK
+
+
+######################################################################
+# LIST ALL SUPPLIERS SORT BY RATING
+######################################################################
+@app.route("/suppliers/rating", methods=["GET"])
+def list_suppliers_sort_by_rating():
+    """Returns all of the Suppliers"""
+    LOG.info("Request for supplier list sort by rating")
+    suppliers = []
+    suppliers = Supplier.all()
+    results = [supplier.serialize() for supplier in suppliers]
+    sorted_res = sorted(results, key=lambda d:d["rating"], reverse=True)
+    LOG.info("Returning %d suppliers", len(results))
+    return jsonify(sorted_res), status.HTTP_200_OK
+
+
+######################################################################
 # RETRIEVE A SUPPLIER
 ######################################################################
 @app.route("/suppliers/<int:supplier_id>", methods=["GET"])
