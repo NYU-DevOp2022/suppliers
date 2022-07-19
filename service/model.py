@@ -38,7 +38,6 @@ name(string) - the name of the item
 import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer
 
 logger = logging.getLogger("flask.app")
 
@@ -146,13 +145,15 @@ class Supplier(db.Model):
                 self.address = data["address"]
             else:
                 raise DataValidationError(
-                    "Invalid type for str [address]: " + str(type(data["address"]))
+                    "Invalid type for str [address]: " +
+                    str(type(data["address"]))
                 )
             if isinstance(data["rating"], float):
                 self.rating = data["rating"]
             else:
                 raise DataValidationError(
-                    "Invalid type for float [rating]: " + str(type(data["rating"]))
+                    "Invalid type for float [rating]: " +
+                    str(type(data["rating"]))
                 )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
@@ -161,7 +162,6 @@ class Supplier(db.Model):
                     "Invalid type for boolean [available]: " +
                     str(type(data["available"]))
                 )
-
 
         except KeyError as error:
             raise DataValidationError(
