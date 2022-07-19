@@ -241,6 +241,20 @@ class Supplier(db.Model):
         return cls.query.filter(cls.name == name)
 
     @classmethod
+    def find_by_rating(cls, rating: float) -> list:
+        """Returns all Suppliers with the given rating
+
+        :param rating: the rating of the Suppliers you want to match
+        :type rating: float
+
+        :return: a collection of Suppliers with that rating
+        :rtype: list
+
+        """
+        logger.info("Processing rating query for %s ...", rating)
+        return cls.query.filter(cls.rating == rating)
+
+    @classmethod
     def create_item_for_supplier(cls, supplier_id: int, item):
         supplier = cls.query.filter(cls.id == supplier_id).first()
         supplier.supplier_to_item.append(item)
