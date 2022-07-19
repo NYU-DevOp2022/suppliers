@@ -18,7 +18,7 @@ import factory
 # from datetime import date
 # from factory.fuzzy import FuzzyDate
 from factory.fuzzy import FuzzyChoice
-from service.model import Supplier
+from service.model import Item, Supplier
 
 
 class SupplierFactory(factory.Factory):
@@ -34,3 +34,15 @@ class SupplierFactory(factory.Factory):
     available = FuzzyChoice(choices=[True, False])
     address = factory.Faker("address")
     rating = factory.Faker("pyfloat", right_digits=1)
+
+
+class ItemFactory(factory.Factory):
+    """Creates fake items that you don't have to feed"""
+
+    class Meta:
+        """Maps factory to data model"""
+
+        model = Item
+
+    id = factory.Sequence(lambda n: n)
+    name = factory.Faker("company")

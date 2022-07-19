@@ -215,6 +215,24 @@ def create_items():
     return jsonify(message), status.HTTP_201_CREATED
 
 ######################################################################
+# DELETE AN ITEM
+######################################################################
+@app.route("/items/<int:item_id>", methods=["DELETE"])
+def delete_items(item_id):
+    """
+    Delete an Item
+
+    This endpoint will delete an Item based the id specified in the path
+    """
+    LOG.info("Request to delete supplier with id: %s", item_id)
+    item = Item.find_by_id(item_id)
+    if item:
+        item.delete()
+
+    LOG.info("Item with ID [%s] delete complete.", item_id)
+    return "", status.HTTP_204_NO_CONTENT
+
+######################################################################
 # LIST ALL ITEMS
 ######################################################################
 
@@ -244,6 +262,7 @@ def add_item_suppliers(supplier_id):
     LOG.info("Request to add an item to a supplier with id: %s", supplier_id)
     item_id = request.args.get("item_id")
     item = Item.find_by_id(item_id)
+    print(item.id)
     Supplier.create_item_for_supplier(supplier_id=supplier_id, item=item)
     message = {"supplier_id": supplier_id, "item_id": item_id}
 
@@ -266,7 +285,7 @@ def list_item_suppliers(supplier_id):
     return jsonify(results), status.HTTP_200_OK
 
 ######################################################################
-# DELETE A SUPPLIER
+# DELETE AN SUPPLIER
 ######################################################################
 
 
