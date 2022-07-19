@@ -58,8 +58,8 @@ class DataValidationError(Exception):
 
 supplier_item = db.Table('supplier_to_item',
                          db.Column('supplier_id', db.Integer, db.ForeignKey(
-                             'supplier.id'), primary_key=True),
-                         db.Column('item_id', db.Integer, db.ForeignKey('item.id'), primary_key=True))
+                             'supplier.id', ondelete='CASCADE'), primary_key=True),
+                         db.Column('item_id', db.Integer, db.ForeignKey('item.id', ondelete='CASCADE'), primary_key=True))
 
 
 class Supplier(db.Model):
@@ -77,11 +77,14 @@ class Supplier(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(63), nullable=False)
     available = db.Column(db.Boolean(), nullable=False, default=False)
-    products = db.Column(db.Integer, nullable=True)
+    address = db.Column(db.String(63), nullable=False)
+    rating = db.Column(db.Float, nullable=False)
 
     supplier_to_item = db.relationship('Item',
                                        secondary=supplier_item,
-                                       lazy='dynamic')
+                                       lazy='dynamic',
+                                       cascade='all',
+                                       passive_deletes=True)
 
     ##################################################
     # INSTANCE METHODS
@@ -120,8 +123,9 @@ class Supplier(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "products": self.products,
             "available": self.available,
+            "address": self.address,
+            "rating": self.rating
         }
 
     def deserialize(self, data: dict):
@@ -137,26 +141,26 @@ class Supplier(db.Model):
                 raise DataValidationError(
                     "Invalid type for str [name]: " + str(type(data["name"]))
                 )
+            if isinstance(data["address"], str):
+                self.address = data["address"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for str [address]: " +
+                    str(type(data["address"]))
+                )
+            if isinstance(data["rating"], float):
+                self.rating = data["rating"]
+            else:
+                raise DataValidationError(
+                    "Invalid type for float [rating]: " +
+                    str(type(data["rating"]))
+                )
             if isinstance(data["available"], bool):
                 self.available = data["available"]
             else:
                 raise DataValidationError(
                     "Invalid type for boolean [available]: " +
                     str(type(data["available"]))
-                )
-
-            if isinstance(data["products"], int):
-                if data["products"] >= 0:
-                    self.products = data["products"]
-                else:
-                    raise DataValidationError(
-                        "Invalid value for [products]: " +
-                        str(type(data["products"]))
-                    )
-            else:
-                raise DataValidationError(
-                    "Invalid type for integer [products]: " +
-                    str(type(data["products"]))
                 )
 
         except KeyError as error:
@@ -185,6 +189,7 @@ class Supplier(db.Model):
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
         app.app_context().push()
+        db.drop_all()
         db.create_all()  # make our sqlalchemy tables
 
     @classmethod
@@ -370,6 +375,7 @@ class Item(db.Model):
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
         app.app_context().push()
+        db.drop_all()
         db.create_all()  # make our sqlalchemy tables
 
     def create(self):
@@ -389,6 +395,5 @@ class Item(db.Model):
 
     @classmethod
     def find_by_id(cls, id: int) -> list:
-
         logger.info("Processing name query for %s ...", id)
         return cls.query.filter(cls.id == id).first()

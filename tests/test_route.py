@@ -148,7 +148,8 @@ class TestSupplierService(unittest.TestCase):
         new_supplier = response.get_json()
         self.assertEqual(new_supplier["name"], test_supplier.name)
         self.assertEqual(new_supplier["available"], test_supplier.available)
-        self.assertEqual(new_supplier["products"], test_supplier.products)
+        self.assertEqual(new_supplier["address"], test_supplier.address)
+        self.assertEqual(new_supplier["rating"], test_supplier.rating)
 
         # Check that the location header was correct   ???
         response = self.client.get(location, content_type=CONTENT_TYPE_JSON)
@@ -156,7 +157,8 @@ class TestSupplierService(unittest.TestCase):
         new_supplier = response.get_json()
         self.assertEqual(new_supplier["name"], test_supplier.name)
         self.assertEqual(new_supplier["available"], test_supplier.available)
-        self.assertEqual(new_supplier["products"], test_supplier.products)
+        self.assertEqual(new_supplier["address"], test_supplier.address)
+        self.assertEqual(new_supplier["rating"], test_supplier.rating)
 
     def test_update_bad_supplier(self):
         NotFoundResponse = self.client.get(f"{BASE_URL}/0")
@@ -176,7 +178,7 @@ class TestSupplierService(unittest.TestCase):
         # update the supplier
         new_supplier = response.get_json()
         logging.debug(new_supplier)
-        new_supplier["products"] = 10086
+        new_supplier["address"] = "NY"
 
         response = self.client.put(
             f"{BASE_URL}/{new_supplier['id']}",
@@ -185,7 +187,7 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         updated_supplier = response.get_json()
-        self.assertEqual(updated_supplier["products"], 10086)
+        self.assertEqual(updated_supplier["address"], "NY")
 
     def test_delete_supplier(self):
         """It should Delete a supplier"""
@@ -241,20 +243,6 @@ class TestSupplierService(unittest.TestCase):
         response = self.client.post(
             BASE_URL,
             json=test_supplier.serialize(),
-            content_type=CONTENT_TYPE_JSON
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_supplier_bad_products(self):
-        """It should not Create a supplier with bad products data"""
-        supplier = SupplierFactory()
-        logging.debug(supplier)
-        # change gender to a bad string
-        test_supplier = supplier.serialize()
-        test_supplier["products"] = -10086    # wrong case
-        response = self.client.post(
-            BASE_URL,
-            json=test_supplier,
             content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
