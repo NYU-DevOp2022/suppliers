@@ -95,7 +95,6 @@ class TestSupplierService(unittest.TestCase):
             suppliers.append(test_supplier)
         return suppliers
 
-
     def _create_items(self, count):
         items = []
         for _ in range(count):
@@ -128,10 +127,10 @@ class TestSupplierService(unittest.TestCase):
             suppliers.append(test_supplier)
         return suppliers
 
-
     ######################################################################
     #  T E S T   C A S E S
     ######################################################################
+
 
     def test_index(self):
         """It should call the Home Page"""
