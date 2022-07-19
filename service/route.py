@@ -95,7 +95,7 @@ def list_suppliers_sort_by_rating():
     suppliers = []
     suppliers = Supplier.all()
     results = [supplier.serialize() for supplier in suppliers]
-    sorted_res = sorted(results, key=lambda d:d["rating"], reverse=True)
+    sorted_res = sorted(results, key=lambda d: d["rating"], reverse=True)
     LOG.info("Returning %d suppliers", len(results))
     return jsonify(sorted_res), status.HTTP_200_OK
 

@@ -306,20 +306,6 @@ class Supplier(db.Model):
         logger.info("Processing available query for %s ...", available)
         return cls.query.filter(cls.available == available)
 
-    @classmethod
-    def find_by_rating(cls, rating: float = 5.0) -> list:
-        """Returns all Suppliers by their availability
-
-        :param rating: rating for suppliers that are equal to the rating
-        :type rating: str
-
-        :return: a collection of Suppliers that are equal to the rating
-        :rtype: list
-
-        """
-        logger.info("Processing rating query for %s ...", rating)
-        return cls.query.filter(cls.rating == rating)
-
     # @classmethod
     # def find_by_gender(cls, gender: Gender = Gender.UNKNOWN) -> list:
     #     """Returns all suppliers by their Gender
