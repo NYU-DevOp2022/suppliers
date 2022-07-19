@@ -32,7 +32,7 @@ import json
 # from unittest.mock import MagicMock, patch
 # from urllib.parse import quote_plus
 from service import app, status
-from service.model import Item, db, init_db, Supplier, DataValidationError
+from service.model import db, init_db, Supplier, DataValidationError
 from tests.factories import ItemFactory, SupplierFactory
 from unittest.mock import patch
 
@@ -244,7 +244,6 @@ class TestSupplierService(unittest.TestCase):
         self._create_items(5)
         response = self.client.get(ITEM_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.get_json()
 
     def test_add_item_suppliers(self):
         test_supplier = self._create_suppliers(1)[0]
