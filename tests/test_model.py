@@ -73,7 +73,8 @@ class TestSupplierModel(unittest.TestCase):
     ######################################################################
     def test_create_a_supplier(self):
         """It should Create a supplier and assert that it exists"""
-        supplier = Supplier(name="Amazon", available=True, address="NY", rating=4.7)
+        supplier = Supplier(name="Amazon", available=True,
+                            address="NY", rating=4.7)
         self.assertEqual(str(supplier), "<Supplier 'Amazon' id=[None]>")
         self.assertTrue(supplier is not None)
         self.assertEqual(supplier.id, None)
@@ -81,7 +82,8 @@ class TestSupplierModel(unittest.TestCase):
         self.assertEqual(supplier.available, True)
         self.assertEqual(supplier.address, "NY")
         self.assertEqual(supplier.rating, 4.7)
-        supplier = Supplier(name="Amazon", available=False, address="NJ", rating=4.5)
+        supplier = Supplier(name="Amazon", available=False,
+                            address="NJ", rating=4.5)
         self.assertEqual(supplier.available, False)
         self.assertEqual(supplier.address, "NJ")
         self.assertEqual(supplier.rating, 4.5)
@@ -90,7 +92,8 @@ class TestSupplierModel(unittest.TestCase):
         """It should Create a supplier and add it to the database"""
         suppliers = Supplier.all()
         self.assertEqual(suppliers, [])
-        supplier = Supplier(name="Amazon", available=True, address="NY", rating=4.7)
+        supplier = Supplier(name="Amazon", available=True,
+                            address="NY", rating=4.7)
         self.assertTrue(supplier is not None)
         self.assertEqual(supplier.id, None)
         supplier.create()
@@ -212,7 +215,6 @@ class TestSupplierModel(unittest.TestCase):
         supplier = Supplier()
         self.assertRaises(DataValidationError, supplier.deserialize, data)
 
-
     def test_deserialize_bad_name(self):
         """It should not serialize a bad products attribute"""
         test_supplier = SupplierFactory()
@@ -257,7 +259,8 @@ class TestSupplierModel(unittest.TestCase):
         for supplier in suppliers:
             supplier.create()
         available = suppliers[0].available
-        count = len([supplier for supplier in suppliers if supplier.available == available])
+        count = len(
+            [supplier for supplier in suppliers if supplier.available == available])
         found = Supplier.find_by_availability(available)
         self.assertEqual(found.count(), count)
         for supplier in found:
@@ -274,7 +277,7 @@ class TestSupplierModel(unittest.TestCase):
         self.assertEqual(supplier.name, suppliers[1].name)
         self.assertEqual(supplier.available, suppliers[1].available)
         self.assertEqual(supplier.address, suppliers[1].address)
-        self.assertEqual(supplier.rating, suppliers[1].rating)      
+        self.assertEqual(supplier.rating, suppliers[1].rating)
 
     def test_find_or_404_not_found(self):
         """It should return 404 not found"""
