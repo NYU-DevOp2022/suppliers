@@ -27,8 +27,7 @@ The purpose of this project is to develop a suppliers system for an eCommerce we
 | id | Integer |
 | name | String |
 
-##
-Supplier_Item
+## Supplier_Item
 |  Column  |  Type  |
 | :----------: | :---------: |
 | supplier_id | Integer |
