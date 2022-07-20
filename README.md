@@ -12,13 +12,27 @@ The purpose of this project is to develop a suppliers system for an eCommerce we
 
 ## Contents
 ### Model description
-
+## Supplier
 |  Column  |  Type  |
 | :----------: | :---------: |
 | id | Integer |
 | name | String |
 | avaliable | Boolean |
-| products | Integer |
+| address | String |
+| rating | Float |
+
+## Item
+|  Column  |  Type  |
+| :----------: | :---------: |
+| id | Integer |
+| name | String |
+
+##
+Supplier_Item
+|  Column  |  Type  |
+| :----------: | :---------: |
+| supplier_id | Integer |
+| item_id | Integer |
 
 ### URLS
 | RESTful APIS |  URL | Short description | Return |
