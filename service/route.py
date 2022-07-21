@@ -72,11 +72,11 @@ def list_suppliers():
 
 
 ######################################################################
-# LIST ALL SUPPLIERS BASED ON RATING
+# LIST SUPPLIERS BASED ON RATING
 ######################################################################
 @app.route("/suppliers/rating/<float:rating>", methods=["GET"])
 def list_suppliers_by_rating(rating):
-    """Returns all of the Suppliers"""
+    """Returns the Suppliers based on their rating"""
     LOG.info("Request for supplier list by rating")
     suppliers = []
     suppliers = Supplier.find_by_rating(rating)
@@ -86,11 +86,11 @@ def list_suppliers_by_rating(rating):
 
 
 ######################################################################
-# LIST ALL SUPPLIERS SORT BY RATING
+# LIST ALL SUPPLIERS SORTED BY RATING
 ######################################################################
 @app.route("/suppliers/rating", methods=["GET"])
 def list_suppliers_sort_by_rating():
-    """Returns all of the Suppliers"""
+    """Returns all of the Suppliers sorted by rating"""
     LOG.info("Request for supplier list sort by rating")
     suppliers = []
     suppliers = Supplier.all()
@@ -285,7 +285,7 @@ def list_item_suppliers(supplier_id):
     return jsonify(results), status.HTTP_200_OK
 
 ######################################################################
-# DELETE AN SUPPLIER
+# DELETE AN ITEM OF A SUPPLIER
 ######################################################################
 
 

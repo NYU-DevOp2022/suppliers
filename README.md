@@ -36,11 +36,23 @@ The purpose of this project is to develop a suppliers system for an eCommerce we
 ### URLS
 | RESTful APIS |  URL | Short description | Return |
 | :----------: | :---------: | :---------: | :---------: |
+| `GET` | `/` | Get index | general information |
 | `POST` | `/suppliers` | Create a new supplier | Supplier Object |
 | `PUT` | `/suppliers/<int:supplier_id>` |  Update a Supplier based on the body that is posted | Supplier Object |
 | `GET` | `/suppliers` | List all the suppliers | List of Supplier Objects |
+| `GET` | `/suppliers/rating/<float:rating>` | List the suppliers based on their ratings | List of Supplier Objects filtered by their ratings |
+| `GET` | `/suppliers/rating/<float:rating>` | List all the suppliers sorted by their rating | List of sorted Supplier Objects |
 | `GET` | `/suppliers/<int:supplier_id>` | Find a supplier based on his id | Supplier Objects |
 | `DELETE` | `/suppliers/<int:supplier_id>` | Delete a supplier based on his id | HTTP_204_NO_CONTENT |
+| `POST` | `/items` | Create a new item  | Item object |
+| `DELETE` | `/items` | Delete an item based on its id | HTTP_204_NO_CONTENT |
+| `GET` | `/items` | List all the items  | List of item objects |
+| `POST` | `/suppliers/<int:supplier_id>/items` | Add an item to a supplier  | Item id and supplier id |
+| `POST` | `/suppliers/<int:supplier_id>/items` | Add an item to a supplier  | Item id and supplier id |
+| `GET` | `/suppliers/<int:supplier_id>/items` | List all items of a supplier  | List of item objects |
+| `DELETE` | `/suppliers/<int:supplier_id>/items` | Delete an item of a supplier based on an item id  | HTTP_204_NO_CONTENT |
+
+
 
 
 
