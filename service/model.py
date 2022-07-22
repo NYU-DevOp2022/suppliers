@@ -242,6 +242,20 @@ class Supplier(db.Model):
         return cls.query.filter(cls.name == name)
 
     @classmethod
+    def find_by_address(cls, address: str) -> list:
+        """Returns all Suppliers with the given address
+
+        :param address: the address of the Suppliers you want to match
+        :type address: str
+
+        :return: a collection of Suppliers with that address
+        :rtype: list
+
+        """
+        logger.info("Processing address query for %s ...", address)
+        return cls.query.filter(cls.address == address)
+
+    @classmethod
     def find_by_rating(cls, rating: float) -> list:
         """Returns all Suppliers with the given rating
 
@@ -253,7 +267,7 @@ class Supplier(db.Model):
 
         """
         logger.info("Processing rating query for %s ...", rating)
-        return cls.query.filter(cls.rating == rating)
+        return cls.query.filter(cls.rating >= rating)
 
     @classmethod
     def create_item_for_supplier(cls, supplier_id: int, item):
@@ -278,20 +292,6 @@ class Supplier(db.Model):
 
         logger.info("Processing all items of a supplier")
         return supplier.supplier_to_item.all()
-
-    # @classmethod
-    # def find_by_products(cls, products: int) -> list:
-    #     """Returns all of the suppliers in a category
-
-    #     :param category: the category of the suppliers you want to match
-    #     :type category: str
-
-    #     :return: a collection of suppliers in that category
-    #     :rtype: list
-
-    #     """
-    #     logger.info("Processing products query for %s ...", products)
-    #     return cls.query.filter(cls.products == products)
 
     @classmethod
     def find_by_availability(cls, available: bool = True) -> list:
@@ -327,6 +327,10 @@ class Item(db.Model):
     __tablename__ = 'item'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    item_to_supplier = db.relationship('Supplier',
+                                       secondary=supplier_item,
+                                       lazy='dynamic',
+                                       viewonly=True)
 
     ##################################################
     # INSTANCE METHODS
@@ -403,6 +407,17 @@ class Item(db.Model):
         return cls.query.all()
 
     @classmethod
-    def find_by_id(cls, id: int) -> list:
-        logger.info("Processing name query for %s ...", id)
-        return cls.query.filter(cls.id == id).first()
+    def find_by_id(cls, item_id: int) -> list:
+        logger.info("Processing id query for item %s ...", id)
+        return cls.query.get(item_id)
+
+    @classmethod
+    def find_by_name(cls, name: str) -> list:
+        logger.info("Processing name query for item %s ...", name)
+        return cls.query.filter(cls.name == name)
+
+    @classmethod
+    def list_suppliers_of_item(cls, item_id: int):
+        item = cls.query.filter(cls.id == item_id).first()
+        logger.info("Processing all suppliers of an item")
+        return item.item_to_supplier.all()

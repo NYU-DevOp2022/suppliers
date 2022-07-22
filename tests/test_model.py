@@ -179,7 +179,7 @@ class TestSupplierModel(unittest.TestCase):
         # See if we get all the suppliers
         suppliers = Supplier.find_by_rating(5.0)
         suppliers = [supplier.serialize() for supplier in suppliers]
-        s_empty = Supplier.find_by_rating(1.0)
+        s_empty = Supplier.find_by_rating(6.0)
         s_empty = [supplier.serialize() for supplier in s_empty]
         self.assertEqual(len(suppliers), 10)
         self.assertEqual(len(s_empty), 0)
@@ -288,6 +288,23 @@ class TestSupplierModel(unittest.TestCase):
         self.assertEqual(found[0].name, suppliers[0].name)
         self.assertEqual(found[0].available, suppliers[0].available)
 
+    def test_find_by_address(self):
+        """It should Find a Supplier by Address"""
+        suppliers = SupplierFactory.create_batch(5)
+        for supplier in suppliers:
+            supplier.create()
+        address = suppliers[0].address
+
+        found = Supplier.find_by_address(address)
+        self.assertEqual(found.count(), 1)
+        self.assertEqual(found[0].address, suppliers[0].address)
+        self.assertEqual(found[0].rating, suppliers[0].rating)
+        self.assertEqual(found[0].name, suppliers[0].name)
+        self.assertEqual(found[0].available, suppliers[0].available)
+
+        found = Supplier.find_by_address("Invalid address!")
+        self.assertEqual(found.count(), 0)
+
     def test_find_by_availability(self):
         """It should Find Suppliers by Availability"""
         suppliers = SupplierFactory.create_batch(10)
@@ -388,3 +405,94 @@ class TestSupplierModel(unittest.TestCase):
         id = items[0].id
         found = Item.find_by_id(id)
         self.assertEqual(found.name, items[0].name)
+
+    def test_find_item_by_name(self):
+        """It should Find a Supplier by Name"""
+        idx = [0, 2, 3]
+        items = ItemFactory.create_batch(5)
+        for i in idx:
+            items[i].name = "Iphone13"
+
+        for item in items:
+            item.create()
+        name = items[0].name
+        found = Item.find_by_name(name)
+        self.assertEqual(found.count(), 3)
+        for i in range(3):
+            self.assertEqual(found[i].id, items[idx[i]].id)
+            self.assertEqual(found[i].name, "Iphone13")
+
+    def test_list_item_for_supplier(self):
+        """It should List items for Supplier"""
+        supplier = SupplierFactory()
+        supplier.create()
+        id = supplier.id
+        logging.debug(supplier)
+        items_of_supplier = Supplier.list_items_of_supplier(id)
+        self.assertEqual(items_of_supplier, [])
+
+        items = ItemFactory.create_batch(5)
+        for item in items:
+            item.create()
+            Supplier.create_item_for_supplier(id, item)
+        logging.debug(items)
+        items_of_supplier = Supplier.list_items_of_supplier(id)
+        self.assertEqual(len(items_of_supplier), 5)
+        self.assertEqual(items_of_supplier[3].name, items[3].name)
+
+    def test_create_item_for_supplier(self):
+        """It should Create items for Supplier"""
+        supplier = SupplierFactory()
+        supplier.create()
+        id = supplier.id
+        logging.debug(supplier)
+
+        items = ItemFactory.create_batch(3)
+        for item in items:
+            item.create()
+            Supplier.create_item_for_supplier(id, item)
+        logging.debug(items)
+
+        items_of_supplier = Supplier.list_items_of_supplier(id)
+        self.assertEqual(len(items_of_supplier), 3)
+        self.assertEqual(items_of_supplier[0].name, items[0].name)
+
+    def test_delete_item_for_supplier(self):
+        """It should Delete items for Supplier"""
+        supplier = SupplierFactory()
+        supplier.create()
+        id = supplier.id
+        logging.debug(supplier)
+
+        items = ItemFactory.create_batch(5)
+        for item in items:
+            item.create()
+            Supplier.create_item_for_supplier(id, item)
+        logging.debug(items)
+        items_of_supplier = Supplier.list_items_of_supplier(id)
+        self.assertEqual(len(items_of_supplier), 5)
+        self.assertEqual(items_of_supplier[0].name, items[0].name)
+
+        Supplier.delete_item_for_supplier(id, items[1])
+        Supplier.delete_item_for_supplier(id, items[2])
+        items_of_supplier = Supplier.list_items_of_supplier(id)
+        self.assertEqual(len(items_of_supplier), 3)
+        self.assertEqual(items_of_supplier[0].name, items[0].name)
+        self.assertEqual(items_of_supplier[1].name, items[3].name)
+
+    def test_list_suppliers_for_item(self):
+        """It should List Suppliers for Item"""
+        item = ItemFactory()
+        item.create()
+        id = item.id
+        logging.debug(item)
+        suppliers_of_item = Item.list_suppliers_of_item(id)
+        self.assertEqual(suppliers_of_item, [])
+
+        suppliers = SupplierFactory.create_batch(5)
+        for supplier in suppliers:
+            supplier.create()
+            Supplier.create_item_for_supplier(supplier.id, item)
+        suppliers_of_item = Item.list_suppliers_of_item(id)
+        self.assertEqual(len(suppliers_of_item), 5)
+        self.assertEqual(suppliers_of_item[3].name, suppliers[3].name)
