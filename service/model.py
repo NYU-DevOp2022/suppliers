@@ -240,7 +240,7 @@ class Supplier(db.Model):
         """
         logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
-    
+
     @classmethod
     def find_by_address(cls, address: str) -> list:
         """Returns all Suppliers with the given address
@@ -410,12 +410,12 @@ class Item(db.Model):
     def find_by_id(cls, item_id: int) -> list:
         logger.info("Processing id query for item %s ...", id)
         return cls.query.get(item_id)
-    
+
     @classmethod
     def find_by_name(cls, name: str) -> list:
         logger.info("Processing name query for item %s ...", name)
         return cls.query.filter(cls.name == name)
-    
+
     @classmethod
     def list_suppliers_of_item(cls, item_id: int):
         item = cls.query.filter(cls.id == item_id).first()
