@@ -7,9 +7,6 @@
 ###  Project description
 The purpose of this project is to develop a suppliers system for an eCommerce web site backend as a collection RESTful services for a client by adopting DevOps methodology. 
 
-
-
-
 ## Contents
 ### Model description
 ## Supplier
@@ -41,8 +38,18 @@ The purpose of this project is to develop a suppliers system for an eCommerce we
 | `GET` | `/suppliers` | List all the suppliers | List of Supplier Objects |
 | `GET` | `/suppliers/<int:supplier_id>` | Find a supplier based on his id | Supplier Objects |
 | `DELETE` | `/suppliers/<int:supplier_id>` | Delete a supplier based on his id | HTTP_204_NO_CONTENT |
-
-
+| `GET` | `/suppliers?name=<str:name>` | Query suppliers by name | List of Supplier Objects |
+| `GET` | `/suppliers?address=<str:address>` | Query suppliers by address | List of Supplier Objects |
+| `GET` | `/suppliers?available=<bool:available>` | Query suppliers by availability | List of Supplier Objects |
+| `GET` | `/suppliers?rating=<float:rating>` | Query suppliers by rating | List of Supplier Objects |
+| `GET` | `/suppliers?item-id=<int:item_id>` | Query suppliers by item_id | List of Supplier Objects |
+| `GET` | `/suppliers/rating` | Sorted suppliers by descending rating | Ordered list of Supplier Objects |
+| `POST` | `/items` | Create a new item | Item Object |
+| `GET` | `/items` | List all the items | List of Supplier Objects |
+| `DELETE` | `/items/<int:item_id>` | Delete an item | HTTP_204_NO_CONTENT |
+| `POST` | `/suppliers/<int:supplier_id>/items/<int:item_id>` | Add new supplier of item relation| HTTP_201_CREATED |
+| `GET` | `/suppliers/<int:supplier_id>/items` | List all items of this supplier| List of Item Objects |
+| `DELETE` | `/suppliers/<int:supplier_id>/items/<int:item_id>` | Delete supplier of item relation| HTTP_204_NO_CONTENT |
 
 ### Project files
 

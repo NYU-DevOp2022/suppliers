@@ -59,15 +59,40 @@ def index():
 def list_suppliers():
     """Returns all of the Suppliers"""
     LOG.info("Request for supplier list")
+    log = ''
     suppliers = []
+
+    item_id = request.args.get("item-id")
     name = request.args.get("name")
-    if name:
-        suppliers = Supplier.find_by_name(name)
-    else:
-        suppliers = Supplier.all()
+    address = request.args.get("address")
+    available = request.args.get("available") in ['True', 'true', 1]
+    rating = request.args.get("rating")
+
+    try:
+        if item_id:
+            item_id = int(item_id)
+            suppliers = Item.list_suppliers_of_item(item_id)
+            log = f" by item_id={item_id}"
+        elif name:
+            suppliers = Supplier.find_by_name(name)
+            log = f" by name={name}"
+        elif address:
+            suppliers = Supplier.find_by_address(address)
+            log = f" by address={address}"
+        elif available:
+            suppliers = Supplier.find_by_availability(available)
+            log = f" by availability={available}"
+        elif rating:
+            rating = float(rating)
+            suppliers = Supplier.find_by_rating(rating)
+            log = f" by rating>={rating}"
+        else:
+            suppliers = Supplier.all()
+    except ValueError as error:
+        abort(status.HTTP_400_BAD_REQUEST, str(error))
 
     results = [supplier.serialize() for supplier in suppliers]
-    LOG.info("Returning %d suppliers", len(results))
+    LOG.info(f"Returning {len(results)} suppliers" + log)
     return jsonify(results), status.HTTP_200_OK
 
 
@@ -193,8 +218,6 @@ def delete_suppliers(supplier_id):
 ######################################################################
 # ADD A NEW Item
 ######################################################################
-
-
 @app.route("/items", methods=["POST"])
 def create_items():
     """
@@ -235,8 +258,6 @@ def delete_items(item_id):
 ######################################################################
 # LIST ALL ITEMS
 ######################################################################
-
-
 @app.route("/items", methods=["GET"])
 def list_items():
     """Returns all of the Suppliers"""
@@ -252,15 +273,15 @@ def list_items():
 ######################################################################
 # ADD AN ITEM TO A SUPPLIER
 ######################################################################
-@app.route("/suppliers/<int:supplier_id>/items", methods=["POST"])
-def add_item_suppliers(supplier_id):
+@app.route("/suppliers/<int:supplier_id>/items/<int:item_id>", methods=["POST"])
+def add_item_suppliers(supplier_id, item_id):
     """
     Add an item to a Supplier
 
     The endpoint will add an item to a supplier in the relationship table
     """
     LOG.info("Request to add an item to a supplier with id: %s", supplier_id)
-    item_id = request.args.get("item_id")
+    # item_id = request.args.get("item-id")
     item = Item.find_by_id(item_id)
     print(item.id)
     Supplier.create_item_for_supplier(supplier_id=supplier_id, item=item)
@@ -289,10 +310,10 @@ def list_item_suppliers(supplier_id):
 ######################################################################
 
 
-@app.route("/suppliers/<int:supplier_id>/items", methods=["DELETE"])
-def delete_item_suppliers(supplier_id):
+@app.route("/suppliers/<int:supplier_id>/items/<int:item_id>", methods=["DELETE"])
+def delete_item_suppliers(supplier_id, item_id):
     LOG.info("Delete an item of supplier %s", supplier_id)
-    item_id = request.args.get("item_id")
+    # item_id = request.args.get("item-id")
     item = Item.find_by_id(item_id)
 
     Supplier.delete_item_for_supplier(supplier_id, item)
