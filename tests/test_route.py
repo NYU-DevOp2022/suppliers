@@ -169,6 +169,25 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(test_supplier.rating, 5.0)
         self.assertEqual(len(data), 5)
         self.assertEqual(data[0]["rating"], 5.0)
+    
+    def test_get_suppliers_sorted_by_rating(self):
+        """It should Get all Suppliers sorted on rating"""
+        # get the id of the suppliers
+        for i in range(5):
+            self._create_suppliers_rating(1, 1.0 * i)
+        
+        all = self.client.get(BASE_URL)
+        self.assertEqual(all.status_code, status.HTTP_200_OK)
+        alldata = all.get_json()
+        self.assertEqual(len(alldata), 5)
+        response = self.client.get(f"{BASE_URL}/rating")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ratingdata = response.get_json()
+        self.assertEqual(len(ratingdata), 5)
+        self.assertEqual(alldata[0]["rating"], 0.0)
+        self.assertEqual(alldata[3]["rating"], 3.0)
+        self.assertEqual(ratingdata[0]["rating"], 4.0)
+        self.assertEqual(ratingdata[2]["rating"], 2.0)
 
     def test_get_supplier_not_found(self):
         """It should not Get a Supplier thats not found"""
