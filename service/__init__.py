@@ -21,14 +21,15 @@ and SQL database
 import sys
 import logging
 from flask import Flask
+from service import config
 
 # Create Flask application
 app = Flask(__name__)
-app.config.from_object("config")
+app.config.from_object(config)
 
 # Import the route After the Flask app is created
 # pylint: disable=wrong-import-position, cyclic-import
-from service import route, model, error_handlers  # noqa: F401, E402
+from service import route, model, error_handlers # noqa: F401, E402
 
 # Set up logging for production
 print("Setting up logging for {}...".format(__name__))
