@@ -287,7 +287,7 @@ class TestSupplierModel(unittest.TestCase):
         self.assertEqual(found[0].rating, suppliers[0].rating)
         self.assertEqual(found[0].name, suppliers[0].name)
         self.assertEqual(found[0].available, suppliers[0].available)
-    
+
     def test_find_by_address(self):
         """It should Find a Supplier by Address"""
         suppliers = SupplierFactory.create_batch(5)
@@ -405,14 +405,14 @@ class TestSupplierModel(unittest.TestCase):
         id = items[0].id
         found = Item.find_by_id(id)
         self.assertEqual(found.name, items[0].name)
-    
+
     def test_find_item_by_name(self):
         """It should Find a Supplier by Name"""
         idx = [0, 2, 3]
         items = ItemFactory.create_batch(5)
         for i in idx:
             items[i].name = "Iphone13"
-        
+
         for item in items:
             item.create()
         name = items[0].name
@@ -456,7 +456,7 @@ class TestSupplierModel(unittest.TestCase):
         items_of_supplier = Supplier.list_items_of_supplier(id)
         self.assertEqual(len(items_of_supplier), 3)
         self.assertEqual(items_of_supplier[0].name, items[0].name)
-    
+
     def test_delete_item_for_supplier(self):
         """It should Delete items for Supplier"""
         supplier = SupplierFactory()
@@ -479,7 +479,7 @@ class TestSupplierModel(unittest.TestCase):
         self.assertEqual(len(items_of_supplier), 3)
         self.assertEqual(items_of_supplier[0].name, items[0].name)
         self.assertEqual(items_of_supplier[1].name, items[3].name)
-    
+
     def test_list_suppliers_for_item(self):
         """It should List Suppliers for Item"""
         item = ItemFactory()

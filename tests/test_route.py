@@ -164,7 +164,7 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(all.status_code, status.HTTP_200_OK)
         alldata = all.get_json()
         self.assertEqual(len(alldata), 5)
-        for i in range(1,4):
+        for i in range(1, 4):
             response = self.client.post(
                 f"{BASE_URL}/{test_suppliers[i].id}/items/{test_item.id}"
             )
@@ -174,7 +174,7 @@ class TestSupplierService(unittest.TestCase):
         data = response.get_json()
         self.assertEqual(len(data), 3)
         self.assertEqual(test_suppliers[1].id, data[0]["id"])
-    
+
     def test_query_suppliers_by_name(self):
         """It should query Suppliers based on name"""
         # get the id of the suppliers
@@ -193,7 +193,7 @@ class TestSupplierService(unittest.TestCase):
         data = response.get_json()
         self.assertEqual(len(data), cnt)
         self.assertEqual(test_suppliers[0].name, data[0]["name"])
-    
+
     def test_query_suppliers_by_address(self):
         """It should query Suppliers based on address"""
         # get the id of the suppliers
@@ -212,7 +212,7 @@ class TestSupplierService(unittest.TestCase):
         data = response.get_json()
         self.assertEqual(len(data), cnt)
         self.assertEqual(test_suppliers[0].address, data[0]["address"])
-    
+
     def test_query_suppliers_by_available(self):
         """It should query Suppliers based on availability"""
         # get the id of the suppliers
@@ -252,13 +252,13 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(test_supplier.rating, 5.0)
         self.assertEqual(len(data), 5)
         self.assertEqual(data[0]["rating"], 5.0)
-    
+
     def test_get_suppliers_sorted_by_rating(self):
         """It should Get all Suppliers sorted on rating"""
         # get the id of the suppliers
         for i in range(5):
             self._create_suppliers_rating(1, 1.0 * i)
-        
+
         all = self.client.get(BASE_URL)
         self.assertEqual(all.status_code, status.HTTP_200_OK)
         alldata = all.get_json()
@@ -505,7 +505,7 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(all.status_code, status.HTTP_200_OK)
         alldata = all.get_json()
         self.assertEqual(len(alldata), 5)
-        for i in range(1,4):
+        for i in range(1, 4):
             response = self.client.post(
                 f"{BASE_URL}/{test_suppliers[i].id}/items/{test_item.id}"
             )
@@ -527,11 +527,11 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         response = self.client.get(f"{BASE_URL}?rating=Invaild")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
+
     ######################################################################
     #  T E S T   M O C K S
     ######################################################################
-    
+
     @patch('service.route.Supplier.find_by_name')
     def test_bad_request(self, bad_request_mock):
         """It should return a Bad Request error from Find By Name"""
