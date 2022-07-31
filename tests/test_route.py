@@ -341,7 +341,6 @@ class TestSupplierService(unittest.TestCase):
         updated_supplier = response.get_json()
         self.assertEqual(updated_supplier["address"], "NY")
 
-
     def test_activate_supplier(self):
         """It should Update an existing supplier"""
         # create a supplier to update
@@ -355,7 +354,6 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         active_supplier = response.get_json()
         self.assertEqual(active_supplier["available"], "true")
-
 
     def test_delete_supplier(self):
         """It should Delete a supplier"""
@@ -503,7 +501,6 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
     def test_activate_supplier_bad_id(self):
         """It should not find an existing supplier"""
         # create a supplier to update
@@ -525,7 +522,6 @@ class TestSupplierService(unittest.TestCase):
             f"{BASE_URL}/{new_supplier['id']}/active",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
 
     def test_create_item_no_data(self):
         """It should not Create an item with missing data"""
