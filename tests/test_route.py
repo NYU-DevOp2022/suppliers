@@ -522,6 +522,28 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_activate_supplier_bad_availability(self):
+        """It should not find an existing supplier"""
+        # create a supplier to update
+        test_supplier = SupplierFactory()
+
+        response = self.client.post(
+            BASE_URL,
+            json=test_supplier.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # activate the supplier
+        new_supplier = response.get_json()
+        logging.debug(new_supplier)
+        new_supplier["available"] = True
+
+        response = self.client.put(
+            f"{BASE_URL}/{new_supplier['id']}/active",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_item_no_data(self):
         """It should not Create an item with missing data"""
         response = self.client.post(

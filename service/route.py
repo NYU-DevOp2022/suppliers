@@ -176,10 +176,10 @@ def create_suppliers():
         abort(status.HTTP_400_BAD_REQUEST, str(error))
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
+
 ######################################################################
 # UPDATE AN EXISTING SUPPLIER
 ######################################################################
-
 @app.route("/suppliers/<int:supplier_id>", methods=["PUT"])
 def update_suppliers(supplier_id):
     """
@@ -202,10 +202,10 @@ def update_suppliers(supplier_id):
     LOG.info("Supplier with ID [%s] updated.", supplier.id)
     return jsonify(supplier.serialize()), status.HTTP_200_OK
 
+
 ######################################################################
 # ACTIVATE A SUPPLIER
 ######################################################################
-
 @app.route("/suppliers/<int:supplier_id>/active", methods=["PUT"])
 def activate_suppliers(supplier_id):
     """
@@ -217,6 +217,10 @@ def activate_suppliers(supplier_id):
 
     supplier = Supplier.find(supplier_id)
 
+    if not supplier:
+        abort(status.HTTP_404_NOT_FOUND,
+              f"Supplier with id '{supplier_id}' was not found.")
+
     if supplier.available:
         abort(status.HTTP_400_BAD_REQUEST,
               f"Supplier with id '{supplier_id}' is already active.")
@@ -225,8 +229,9 @@ def activate_suppliers(supplier_id):
     supplier.id = supplier_id
     supplier.update()
 
-    LOG.info("Supplier with ID [%s] activate", supplier.id)
+    LOG.info("Supplier with ID [%s] activated", supplier.id)
     return jsonify(supplier.serialize()), status.HTTP_200_OK
+
 
 ######################################################################
 # DELETE A SUPPLIER
