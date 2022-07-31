@@ -341,7 +341,6 @@ class TestSupplierService(unittest.TestCase):
         updated_supplier = response.get_json()
         self.assertEqual(updated_supplier["address"], "NY")
 
-
     def test_activate_supplier(self):
         """It should activate an existing supplier"""
         # create a supplier to update
@@ -359,11 +358,10 @@ class TestSupplierService(unittest.TestCase):
         # activate the supplier
         response = self.client.put(
             f"{BASE_URL}/{new_supplier['id']}/active"
-        )                        
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         active_supplier = response.get_json()
         self.assertEqual(active_supplier["available"], True)
-
 
     def test_deactivate_supplier(self):
         """It should deactivate an existing supplier"""
@@ -560,7 +558,6 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertIn("was not found", data["message"])
 
-
     def test_activate_supplier_bad_availability(self):
         """It should not change the availability of an supplier"""
         # create a supplier to update
@@ -585,7 +582,6 @@ class TestSupplierService(unittest.TestCase):
         data = response.get_json()
         self.assertIn("is already activated", data["message"])
 
-
     def test_deactivate_supplier_bad_id(self):
         """It should not find an existing supplier"""
         # create a supplier to update
@@ -604,13 +600,12 @@ class TestSupplierService(unittest.TestCase):
         logging.debug(new_supplier)
         new_supplier["id"] = 10086
 
-        response = self.client.put(
+        response = self.client.delete(
             f"{BASE_URL}/{new_supplier['id']}/deactive",
         )
         data = response.get_json()
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertIn("was not found", data["message"])
-
 
     def test_deactivate_supplier_bad_availability(self):
         """It should not change the availability of an supplier"""
@@ -629,13 +624,12 @@ class TestSupplierService(unittest.TestCase):
         new_supplier = response.get_json()
         logging.debug(new_supplier)
 
-        response = self.client.put(
+        response = self.client.delete(
             f"{BASE_URL}/{new_supplier['id']}/deactive",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data = response.get_json()
         self.assertIn("is already deactivated", data["message"])
-
 
     def test_create_item_no_data(self):
         """It should not Create an item with missing data"""
