@@ -344,7 +344,7 @@ class Item(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-        }   
+        }
 
     def deserialize(self, data: dict):
         """
