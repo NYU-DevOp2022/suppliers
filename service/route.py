@@ -239,7 +239,7 @@ def activate_suppliers(supplier_id):
 @app.route("/suppliers/<int:supplier_id>/deactive", methods=["DELETE"])
 def deactivate_suppliers(supplier_id):
     """
-    Activate  a Supplier
+    Deactivate  a Supplier
 
     This endpoint will update a Supplier based the body that is posted
     """
@@ -253,13 +253,13 @@ def deactivate_suppliers(supplier_id):
 
     if not supplier.available:
         abort(status.HTTP_400_BAD_REQUEST,
-              f"Supplier with id '{supplier_id}' is already deactived.")
+              f"Supplier with id '{supplier_id}' is already deactivated.")
 
     supplier.available = False
     supplier.id = supplier_id
     supplier.update()
 
-    LOG.info("Supplier with ID [%s] activated", supplier.id)
+    LOG.info("Supplier with ID [%s] deactivated", supplier.id)
     return jsonify(supplier.serialize()), status.HTTP_200_OK
 
 
