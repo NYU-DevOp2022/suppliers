@@ -342,9 +342,9 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(updated_supplier["address"], "NY")
 
     def test_activate_supplier(self):
-        """It should Update an existing supplier"""
+        """It should activate an existing supplier"""
         # create a supplier to update
-        test_supplier = self._create_suppliers(1)[1]
+        test_supplier = self._create_suppliers(1)[0]
 
         # activate the supplier
         response = self.client.put(
@@ -504,6 +504,7 @@ class TestSupplierService(unittest.TestCase):
         """It should not find an existing supplier"""
         # create a supplier to update
         test_supplier = SupplierFactory()
+        test_supplier.available = False
 
         response = self.client.post(
             BASE_URL,
@@ -523,7 +524,7 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_activate_supplier_bad_availability(self):
-        """It should not find an existing supplier"""
+        """It should not change the availability of an supplier"""
         # create a supplier to update
         test_supplier = SupplierFactory()
 
