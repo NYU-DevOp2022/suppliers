@@ -344,8 +344,7 @@ class TestSupplierService(unittest.TestCase):
     def test_activate_supplier(self):
         """It should Update an existing supplier"""
         # create a supplier to update
-        test_supplier = self._create_suppliers(1)[0]
-        test_supplier.available = False
+        test_supplier = self._create_suppliers(1)[1]
 
         # activate the supplier
         response = self.client.put(
@@ -353,7 +352,7 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         active_supplier = response.get_json()
-        self.assertEqual(active_supplier["available"], "true")
+        self.assertEqual(active_supplier["available"], True)
 
     def test_delete_supplier(self):
         """It should Delete a supplier"""
