@@ -504,7 +504,7 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-    def test_update_supplier_bad_id(self):
+    def test_activate_supplier_bad_id(self):
         """It should not find an existing supplier"""
         # create a supplier to update
         test_supplier = SupplierFactory()
