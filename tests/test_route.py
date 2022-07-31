@@ -348,7 +348,7 @@ class TestSupplierService(unittest.TestCase):
 
         # activate the supplier
         response = self.client.put(
-            f"{BASE_URL}/{test_supplier['id']}/active"
+            f"{BASE_URL}/{test_supplier.id}/active"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         active_supplier = response.get_json()
@@ -527,6 +527,7 @@ class TestSupplierService(unittest.TestCase):
         """It should not change the availability of an supplier"""
         # create a supplier to update
         test_supplier = SupplierFactory()
+        test_supplier.available = True
 
         response = self.client.post(
             BASE_URL,
@@ -535,13 +536,8 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # activate the supplier
-        new_supplier = response.get_json()
-        logging.debug(new_supplier)
-        new_supplier["available"] = True
-
         response = self.client.put(
-            f"{BASE_URL}/{new_supplier['id']}/active",
+            f"{BASE_URL}/{test_supplier.id}/active",
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
