@@ -344,8 +344,16 @@ class TestSupplierService(unittest.TestCase):
     def test_activate_supplier(self):
         """It should activate an existing supplier"""
         # create a supplier to update
-        test_supplier = self._create_suppliers(1)[0]
+        """It should Update an existing supplier"""
+        # create a supplier to update
+        test_supplier = SupplierFactory()
         test_supplier.available = False
+        response = self.client.post(
+            BASE_URL,
+            json=test_supplier.serialize(),
+            content_type=CONTENT_TYPE_JSON
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # activate the supplier
         response = self.client.put(
