@@ -234,6 +234,36 @@ def activate_suppliers(supplier_id):
 
 
 ######################################################################
+# DEACTIVATE A SUPPLIER
+######################################################################
+@app.route("/suppliers/<int:supplier_id>/deactive", methods=["DELETE"])
+def deactivate_suppliers(supplier_id):
+    """
+    Activate  a Supplier
+
+    This endpoint will update a Supplier based the body that is posted
+    """
+    LOG.info("Request to deactivate supplier with id: %s", supplier_id)
+
+    supplier = Supplier.find(supplier_id)
+
+    if not supplier:
+        abort(status.HTTP_404_NOT_FOUND,
+              f"Supplier with id '{supplier_id}' was not found.")
+
+    if not supplier.available:
+        abort(status.HTTP_400_BAD_REQUEST,
+              f"Supplier with id '{supplier_id}' is already deactived.")
+
+    supplier.available = False
+    supplier.id = supplier_id
+    supplier.update()
+
+    LOG.info("Supplier with ID [%s] activated", supplier.id)
+    return jsonify(supplier.serialize()), status.HTTP_200_OK
+
+
+######################################################################
 # DELETE A SUPPLIER
 ######################################################################
 @app.route("/suppliers/<int:supplier_id>", methods=["DELETE"])

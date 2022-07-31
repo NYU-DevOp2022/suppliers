@@ -344,8 +344,6 @@ class TestSupplierService(unittest.TestCase):
     def test_activate_supplier(self):
         """It should activate an existing supplier"""
         # create a supplier to update
-        """It should Update an existing supplier"""
-        # create a supplier to update
         test_supplier = SupplierFactory()
         test_supplier.available = False
         response = self.client.post(
@@ -355,9 +353,11 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        new_supplier = response.get_json()
+
         # activate the supplier
         response = self.client.put(
-            f"{BASE_URL}/{test_supplier.id}/active"
+            f"{BASE_URL}/{new_supplier['id']}/active"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         active_supplier = response.get_json()
