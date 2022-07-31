@@ -579,7 +579,7 @@ class TestSupplierService(unittest.TestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data = response.get_json()
-        self.assertIn("is already activated", data["message"])
+        self.assertIn("is already active", data["message"])
 
     def test_deactivate_supplier_bad_id(self):
         """It should not find an existing supplier"""
