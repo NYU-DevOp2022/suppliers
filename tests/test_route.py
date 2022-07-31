@@ -385,7 +385,6 @@ class TestSupplierService(unittest.TestCase):
         active_supplier = response.get_json()
         self.assertEqual(active_supplier["available"], False)
 
-
     def test_delete_supplier(self):
         """It should Delete a supplier"""
         test_supplier = self._create_suppliers(1)[0]
