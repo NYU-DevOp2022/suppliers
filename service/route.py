@@ -33,24 +33,6 @@ from . import app  # Import Flask application
 
 LOG = create_logger(app)
 
-######################################################################
-# GET INDEX
-######################################################################
-
-
-@app.route("/")
-def index():
-    """Root URL response"""
-    LOG.info("Request for Root URL")
-    return (
-        jsonify(
-            name="Supplier Demo REST API Service",
-            version="1.0",
-            paths=url_for("list_suppliers", _external=True),
-        ),
-        status.HTTP_200_OK,
-    )
-
 ############################################################
 # Health Endpoint
 ############################################################
@@ -58,6 +40,14 @@ def index():
 def health():
     """Health Status"""
     return jsonify(dict(status="OK")), status.HTTP_200_OK
+
+######################################################################
+# GET INDEX
+######################################################################
+@app.route("/")
+def index():
+    """Base URL for our service"""
+    return app.send_static_file("index.html")
 
 ######################################################################
 # LIST ALL SUPPLIERS
