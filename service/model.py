@@ -149,8 +149,8 @@ class Supplier(db.Model):
                     "Invalid type for str [address]: " +
                     str(type(data["address"]))
                 )
-            if isinstance(data["rating"], float):
-                self.rating = data["rating"]
+            if isinstance(float(data["rating"]), float):
+                self.rating = float(data["rating"])
             else:
                 raise DataValidationError(
                     "Invalid type for float [rating]: " +
