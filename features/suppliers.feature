@@ -10,6 +10,7 @@ Background:
         | Tony       | True      | NY       | 4.9        |
         | Tom        | False     | CA       | 4.5        |
         | Frank      | True      | NY       | 4.6        |
+
     
 
 Scenario: The server is running
