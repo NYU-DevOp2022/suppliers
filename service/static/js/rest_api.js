@@ -196,6 +196,7 @@ $(function () {
 
         let name = $("#supplier_name").val();
         let available = $("#supplier_available").val() == "true";
+        let address = $("#supplier_address").val();
 
         let queryString = ""
 
@@ -208,6 +209,9 @@ $(function () {
             } else {
                 queryString += 'available=' + available
             }
+        }
+        if (address){
+            queryString += 'address=' + address
         }
 
         $("#flash_message").empty();
