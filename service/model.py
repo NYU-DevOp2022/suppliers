@@ -29,8 +29,8 @@ available (boolean) - indicate whether the supplier is active or not
 products (list of int) - a list of product id provided by the supplier
 """
 import logging
-from enum import Enum
-from datetime import date
+#from enum import Enum
+#from datetime import date
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -47,7 +47,6 @@ def init_db(app):
 
 class DataValidationError(Exception):
     """Used for an data validation errors when deserializing"""
-
 
 
 class Supplier(db.Model):
@@ -103,7 +102,7 @@ class Supplier(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "products" : self.products,
+            "products": self.products,
             "available": self.available,
         }
 
@@ -129,7 +128,8 @@ class Supplier(db.Model):
             raise DataValidationError("Invalid supplier: missing " + error.args[0])
         except TypeError as error:
             raise DataValidationError(
-                "Invalid supplier: body of request contained bad or no data " + str(error)
+                "Invalid supplier: body of request contained bad or no data "
+                + str(error)
             )
         return self
 

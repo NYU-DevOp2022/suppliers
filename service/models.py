@@ -117,7 +117,7 @@ class Pet(db.Model):
             "category": self.category,
             "available": self.available,
             "gender": self.gender.name,  # convert enum to string
-            "birthday": self.birthday.isoformat()
+            "birthday": self.birthday.isoformat(),
         }
 
     def deserialize(self, data: dict):

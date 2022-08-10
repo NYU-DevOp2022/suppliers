@@ -85,7 +85,9 @@ class TestSupplierService(unittest.TestCase):
                 BASE_URL, json=test_supplier.serialize(), content_type=CONTENT_TYPE_JSON
             )
             self.assertEqual(
-                response.status_code, status.HTTP_201_CREATED, "Could not create test supplier"
+                response.status_code,
+                status.HTTP_201_CREATED,
+                "Could not create test supplier",
             )
             new_supplier = response.get_json()
             test_supplier.id = new_supplier["id"]
@@ -133,9 +135,7 @@ class TestSupplierService(unittest.TestCase):
         test_supplier = SupplierFactory()
         logging.debug("Test Supplier: %s", test_supplier.serialize())
         response = self.client.post(
-            BASE_URL,
-            json=test_supplier.serialize(),
-            content_type=CONTENT_TYPE_JSON
+            BASE_URL, json=test_supplier.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -149,7 +149,6 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(new_supplier["available"], test_supplier.available)
         self.assertEqual(new_supplier["products"], test_supplier.products)
 
-
         # Check that the location header was correct   ???
         response = self.client.get(location, content_type=CONTENT_TYPE_JSON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -158,16 +157,12 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(new_supplier["available"], test_supplier.available)
         self.assertEqual(new_supplier["products"], test_supplier.products)
 
-
-
     def test_update_supplier(self):
         """It should Update an existing supplier"""
         # create a supplier to update
         test_supplier = SupplierFactory()
         response = self.client.post(
-            BASE_URL,
-            json=test_supplier.serialize(),
-            content_type=CONTENT_TYPE_JSON
+            BASE_URL, json=test_supplier.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -199,10 +194,11 @@ class TestSupplierService(unittest.TestCase):
         """It should Query suppliers by Category"""
         suppliers = self._create_suppliers(10)
         test_products = suppliers[0].products
-        products_suppliers = [supplier for supplier in suppliers if supplier.products == test_products]
+        products_suppliers = [
+            supplier for supplier in suppliers if supplier.products == test_products
+        ]
         response = self.client.get(
-            BASE_URL,
-            query_string=f"products={quote_plus(test_products)}"
+            BASE_URL, query_string=f"products={quote_plus(test_products)}"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
@@ -217,11 +213,7 @@ class TestSupplierService(unittest.TestCase):
 
     def test_create_supplier_no_data(self):
         """It should not Create a supplier with missing data"""
-        response = self.client.post(
-            BASE_URL,
-            json={},
-            content_type=CONTENT_TYPE_JSON
-        )
+        response = self.client.post(BASE_URL, json={}, content_type=CONTENT_TYPE_JSON)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_supplier_no_content_type(self):
@@ -236,9 +228,7 @@ class TestSupplierService(unittest.TestCase):
         # change available to a string
         test_supplier.available = "true"
         response = self.client.post(
-            BASE_URL,
-            json=test_supplier.serialize(),
-            content_type=CONTENT_TYPE_JSON
+            BASE_URL, json=test_supplier.serialize(), content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -248,11 +238,9 @@ class TestSupplierService(unittest.TestCase):
         logging.debug(supplier)
         # change gender to a bad string
         test_supplier = supplier.serialize()
-        test_supplier["products"] = -10086    # wrong case
+        test_supplier["products"] = -10086  # wrong case
         response = self.client.post(
-            BASE_URL,
-            json=test_supplier,
-            content_type=CONTENT_TYPE_JSON
+            BASE_URL, json=test_supplier, content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -260,16 +248,18 @@ class TestSupplierService(unittest.TestCase):
     #  T E S T   M O C K S
     ######################################################################
 
-    @patch('service.route.Supplier.find_by_name')
+    @patch("service.route.Supplier.find_by_name")
     def test_bad_request(self, bad_request_mock):
         """It should return a Bad Request error from Find By Name"""
         bad_request_mock.side_effect = DataValidationError()
-        response = self.client.get(BASE_URL, query_string='name=fido')
+        response = self.client.get(BASE_URL, query_string="name=fido")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('service.route.Supplier.find_by_name')
+    @patch("service.route.Supplier.find_by_name")
     def test_mock_search_data(self, supplier_find_mock):
         """It should showing how to mock data"""
-        supplier_find_mock.return_value = [MagicMock(serialize=lambda: {'name': 'fido'})]
-        response = self.client.get(BASE_URL, query_string='name=fido')
+        supplier_find_mock.return_value = [
+            MagicMock(serialize=lambda: {"name": "fido"})
+        ]
+        response = self.client.get(BASE_URL, query_string="name=fido")
         self.assertEqual(response.status_code, status.HTTP_200_OK)

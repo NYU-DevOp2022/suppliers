@@ -32,4 +32,4 @@ class SupplierFactory(factory.Factory):
     id = factory.Sequence(lambda n: n)
     name = factory.Faker("first_name")
     available = FuzzyChoice(choices=[True, False])
-    products = factory.Sequence(lambda n : n)
+    products = factory.Sequence(lambda n: n)
