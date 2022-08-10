@@ -49,6 +49,10 @@ def index():
     """Base URL for our service"""
     return app.send_static_file("index.html")
 
+@app.route("/items")
+def item_url():
+    return app.send_static_file("items.html")
+
 ######################################################################
 # LIST ALL SUPPLIERS
 ######################################################################
@@ -316,7 +320,7 @@ def delete_items(item_id):
 ######################################################################
 @app.route("/items", methods=["GET"])
 def list_items():
-    """Returns all of the Suppliers"""
+    """Returns all of the Items"""
     LOG.info("Request for item list")
     items = []
     items = Item.all()
