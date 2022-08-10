@@ -355,20 +355,11 @@ $(function () {
 
     $("#search-btn-item").click(function () {
 
-        let name = $("#item_name").val();
-        
-
-        let queryString = ""
-
-        if (name) {
-            queryString += 'name=' + name
-        }
-
         $("#flash_message_item").empty();
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/items?${queryString}`,
+            url: `/items`,
             contentType: "application/json",
             data: ''
         })
@@ -403,5 +394,147 @@ $(function () {
         ajax.fail(function(response){
             flash_message_item(response.responseJSON.message)
         });
+    });
+
+    $("#show-btn").click(function () {
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/items`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(response){
+            //alert(res.toSource())
+            $("#search_results").empty();
+            let table = '<table class="table table-striped" cellpadding="10">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-2">ID</th>'
+            table += '<th class="col-md-2">Item</th>'
+            table += '<th class="col-md-2"></th>'
+            table += '</tr></thead><tbody>'
+            let firstItem = "";
+            for(let i = 0; i < response.length; i++) {
+                let item = response[i];
+                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "add-btn">Add</button></td></tr>`;
+                if (i == 0) {
+                    firstItem = item;
+                }
+            }
+            table += '</tbody></table>';
+            $("#search_results").append(table);
+
+            // copy the first result to the form
+            if (firstItem != "") {
+                update_form_data_item(firstItem)
+            }
+
+            flash_message_item("Success")
+        });
+
+        ajax.fail(function(response){
+            flash_message_item(response.responseJSON.message)
+        });
+    });
+
+    $("#list-item-btn").click(function () {
+
+        let supplier_id = $("#supplier_id").val();
+
+        supplier_id = parseInt(supplier_id);
+
+        let data = {
+            "supplier_id": supplier_id
+        };
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/suppliers/${supplier_id}/items`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(response){
+            //alert(res.toSource())
+            $("#search_results").empty();
+            let table = '<table class="table table-striped" cellpadding="10">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-2">ID</th>'
+            table += '<th class="col-md-2">Item</th>'
+            table += '<th class="col-md-2"></th>'           
+            table += '</tr></thead><tbody>'
+            let firstItem = "";
+            for(let i = 0; i < response.length; i++) {
+                let item = response[i];
+                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "delete-btn">delete</button></td></tr>`;
+                if (i == 0) {
+                    firstItem = item;
+                }
+            }
+            table += '</tbody></table>';
+            $("#search_results").append(table);
+
+            // copy the first result to the form
+            if (firstItem != "") {
+                update_form_data_item(firstItem)
+            }
+
+            flash_message_item("Success")
+        });
+
+        ajax.fail(function(response){
+            flash_message_item(response.responseJSON.message)
+        });
+    });
+
+    $(document).on('click', '#add-btn', function(){
+        let item_id = $(this).parent().parent().find("td").eq(0).text();
+        item_id = parseInt(item_id);
+        let supplier_id = $("#supplier_id").val();
+        supplier_id = parseInt(supplier_id);
+
+        $("#flash_message").empty();
+        
+        let ajax = $.ajax({
+            type: "POST",
+            url: `/suppliers/${supplier_id}/items/${item_id}`,
+            contentType: "application/json",
+            data: ''
+        });
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            flash_message("Success")
+        });
+
+    });
+
+    $(document).on('click', '#delete-btn', function(){
+        let item_id = $(this).parent().parent().find("td").eq(0).text();
+        item_id = parseInt(item_id);
+        let supplier_id = $("#supplier_id").val();
+        supplier_id = parseInt(supplier_id);
+
+        $("#flash_message").empty();
+        
+        let ajax = $.ajax({
+            type: "DELETE",
+            url: `/suppliers/${supplier_id}/items/${item_id}`,
+            contentType: "application/json",
+            data: ''
+        });
+
+        $(this).parent().parent().remove();
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            flash_message("Success")
+        });
+
     });
 })
