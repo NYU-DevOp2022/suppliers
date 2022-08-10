@@ -19,11 +19,9 @@
         }
 
         .nav a {
-            /*   此时的a为行内元素 修改高无效 需要将a转换为行内块元素 它既可以有宽度 又可以有高度*/
             display: inline-block;
             height: 41px;
             padding: 0 20px;
-            /* 上下为0  左右为20px */
             font-size: 12px;
             color: #eee;
             text-decoration: none;
@@ -39,21 +37,23 @@
 
 <body>
     <div class="nav">
-        <a href="index.html">Suppliers</a>
-        <a href="Items.html">Items</a>
+        <img class = "img" width="30" height="30" src="static/nyu.png">
+        <a href="/"> Suppliers </a> 
+        <a href="/items"> Items </a>
     </div>
 </body>
 
   <body>
     <div class="container">
       <div class="page-header">
-          <h1>Suppliers</h1>
+          <img class = "img" width="50" height="50" src="static/nyu.png">
+          <h1>Items Information</h1>
       </div>
 
       <!-- Flash Message -->
       <div class="table-responsive">
         <table class="table">
-          <tr><td>Status:</td><td><span id="flash_message"></span></td></tr>
+          <tr><td>Status:</td><td><span id="flash_message_item"></span></td></tr>
         </table>
       </div>
 
@@ -61,13 +61,9 @@
 
           <div class="form-horizontal">
             <div class="form-group">
-              <label class="control-label col-sm-2" for="pet_id">Pet ID:</label>
-              <div class="col-sm-6">
-                <input type="text" class="form-control" id="pet-id" placeholder="Enter ID of Pet">
-              </div>
-              <div class="col-sm-4">
-                <button type="submit" class="btn btn-primary" id="retrieve-btn">Retrieve</button>
-                <button type="submit" class="btn btn-danger" id="delete-btn">Delete</button>
+              <label class="control-label col-sm-2" for="item_id">Item ID:</label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" id="item_id" placeholder="Enter ID of Item">
               </div>
             </div>
           </div> <!-- form horizontal -->
@@ -76,48 +72,9 @@
 
             <!-- NAME -->
             <div class="form-group">
-              <label class="control-label col-sm-2" for="pet_name">Name:</label>
+              <label class="control-label col-sm-2" for="item_name">Name:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="pet_name" placeholder="Enter name for Pet">
-              </div>
-            </div>
-
-            <!-- CATEGORY -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="pet_category">Category:</label>
-              <div class="col-sm-10">
-                <input type="text" class="form-control" id="pet_category" placeholder="Enter category for Pet">
-              </div>
-            </div>
-
-            <!-- AVAILABLE -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="pet_available">Available:</label>
-              <div class="col-sm-10">
-                <select class="form-control" id="pet_available">
-                  <option value="true" selected>True</option>
-                  <option value="false">False</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- GENDER -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="pet_gender">Gender:</label>
-              <div class="col-sm-10">
-                <select class="form-control" id="pet_gender">
-                  <option value="UNKNOWN" selected>Unknown</option>
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- BIRTHDAY -->
-            <div class="form-group">
-              <label class="control-label col-sm-2" for="pet_birthday">Birthday:</label>
-              <div class="col-sm-10">
-                <input type="date" class="form-control" id="pet_birthday" placeholder="2020-04-01">
+                <input type="text" class="form-control" id="item_name" placeholder="Enter name for Item">
               </div>
             </div>
 
@@ -125,10 +82,10 @@
             <!-- SUBMIT BUTTONS -->
             <div class="form-group">
               <div class="col-sm-offset-2 col-sm-10">
-                <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
-                <button type="submit" class="btn btn-primary" id="clear-btn">Clear</button>
-                <button type="submit" class="btn btn-success" id="create-btn">Create</button>
-                <button type="submit" class="btn btn-warning" id="update-btn">Update</button>
+                <button type="submit" class="btn btn-primary" id="search-btn-item">Search Item</button>
+                <button type="submit" class="btn btn-primary" id="clear-btn-item">Clear Item</button>
+                <button type="submit" class="btn btn-success" id="create-btn-item">Create Item</button>
+                <button type="submit" class="btn btn-danger" id="delete-btn-item">Delete Item</button>
               </div>
             </div>
           </div> <!-- form horizontal -->
@@ -136,16 +93,12 @@
       </div> <!-- end Form -->
 
       <!-- Search Results -->
-      <div class="table-responsive col-md-12" id="search_results">
+      <div class="table-responsive col-md-12" id="search_results_item">
         <table class="table table-striped">
           <thead>
           <tr>
             <th class="col-md-1">ID</th>
-            <th class="col-md-4">Name</th>
-            <th class="col-md-4">Category</th>
-            <th class="col-md-3">Available</th>
-            <th class="col-md-3">Gender</th>
-            <th class="col-md-3">Birthday</th>
+            <th class="col-md-2">Name</th>
           </tr>
           </thead>
         </table>
