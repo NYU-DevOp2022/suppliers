@@ -50,7 +50,7 @@ def index():
     return app.send_static_file("index.html")
 
 
-@app.route("/items")
+@app.route("/item")
 def item_url():
     return app.send_static_file("items.html")
 
