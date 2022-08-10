@@ -10,6 +10,7 @@ Background:
         | Tony       | True      | NY       | 4.9        |
         | Tom        | False     | CA       | 4.5        |
         | Frank      | True      | NY       | 4.6        |
+    
 
 Scenario: The server is running
     When I visit the "Home Page"
@@ -20,6 +21,7 @@ Scenario: Page Route
     When I visit the "Home Page"
     And I press the "Items" button
     Then I should see "NYU Devops items" in the title
+    
 
 Scenario: Create a Supplier
     When I visit the "Home Page"
