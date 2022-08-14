@@ -1,9 +1,10 @@
 # Werkzeug is famous for breaking Flask so pin down a known working version
-Werkzeug==2.1.1
+Werkzeug==2.0.3
 
 # Build dependencies
 Flask==2.1.1
 Flask-SQLAlchemy==2.5.1
+Flask-RESTX==0.5.1
 psycopg2==2.9.3
 python-dotenv==0.20.0
 
@@ -28,13 +29,6 @@ pinocchio==0.4.3
 factory-boy==2.12.0
 coverage==6.3.2
 codecov==2.1.12
-
-# Behavior Driven Development
-behave==1.2.6
-selenium==4.1.0
-# selenium==4.3.0
-compare==0.2b0
-requests==2.28.1
 
 # Utilities
 httpie==3.1.0

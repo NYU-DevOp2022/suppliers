@@ -219,8 +219,6 @@ $(function () {
         let ajax = $.ajax({
             type: "GET",
             url: `/suppliers?${queryString}`,
-            contentType: "application/json",
-            data: ''
         })
 
         ajax.done(function(res){
@@ -471,7 +469,7 @@ $(function () {
             let firstItem = "";
             for(let i = 0; i < response.length; i++) {
                 let item = response[i];
-                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "delete-btn">delete</button></td></tr>`;
+                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "remove-btn">delete</button></td></tr>`;
                 if (i == 0) {
                     firstItem = item;
                 }
@@ -514,7 +512,7 @@ $(function () {
 
     });
 
-    $(document).on('click', '#delete-btn', function(){
+    $(document).on('click', '#remove-btn', function(){
         let item_id = $(this).parent().parent().find("td").eq(0).text();
         item_id = parseInt(item_id);
         let supplier_id = $("#supplier_id").val();

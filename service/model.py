@@ -271,7 +271,7 @@ class Supplier(db.Model):
 
     @classmethod
     def create_item_for_supplier(cls, supplier_id: int, item):
-        supplier = cls.query.filter(cls.id == supplier_id).first()
+        supplier = cls.query.get_or_404(supplier_id)
         supplier.supplier_to_item.append(item)
 
         logger.info("Add an item for supplier %s", supplier_id)
@@ -279,7 +279,7 @@ class Supplier(db.Model):
 
     @classmethod
     def delete_item_for_supplier(cls, supplier_id: int, item):
-        supplier = cls.query.filter(cls.id == supplier_id).first()
+        supplier = cls.query.get_or_404(supplier_id)
         supplier.supplier_to_item.remove(item)
 
         logger.info("Delete an item for supplier %s", supplier_id)
@@ -288,7 +288,7 @@ class Supplier(db.Model):
     @classmethod
     def list_items_of_supplier(cls, supplier_id: int):
 
-        supplier = cls.query.filter(cls.id == supplier_id).first()
+        supplier = cls.query.get_or_404(supplier_id)
 
         logger.info("Processing all items of a supplier")
         return supplier.supplier_to_item.all()
