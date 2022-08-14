@@ -32,12 +32,12 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 ID_PREFIX = 'supplier_'
-
+INDEX_URL = 'http://localhost:8080/index'
 
 @when('I visit the "home page"')
 def step_impl(context):
     """ Make a call to the base URL """
-    context.driver.get(context.BASE_URL)
+    context.driver.get(INDEX_URL)
     # Uncomment next line to take a screenshot of the web page
     # context.driver.save_screenshot('home_page.png')
 

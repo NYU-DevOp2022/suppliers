@@ -24,27 +24,20 @@ PUT /suppliers/{id} - updates a Supplier record in the database
 DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
-
-from flask import jsonify, request, url_for, abort
+import secrets
+from functools import wraps
+from flask_restx import Resource, fields, reqparse, inputs
+from flask import jsonify, request, abort
 from flask.logging import create_logger
 from service.model import Supplier, DataValidationError, Item
 from . import status  # HTTP Status Codes
-from . import app  # Import Flask application
+from . import app, api  # Import Flask application
 
 LOG = create_logger(app)
-
-############################################################
-# Health Endpoint
-############################################################
-@app.route("/health")
-def health():
-    """Health Status"""
-    return jsonify(dict(status="OK")), status.HTTP_200_OK
-
 ######################################################################
-# GET INDEX
+# GET HTML
 ######################################################################
-@app.route("/")
+@app.route("/index")
 def index():
     """Base URL for our service"""
     return app.send_static_file("index.html")
@@ -54,339 +47,500 @@ def index():
 def items():
     return app.send_static_file("items.html")
 
-######################################################################
-# LIST ALL SUPPLIERS
-######################################################################
-@app.route("/suppliers", methods=["GET"])
-def list_suppliers():
-    """Returns all of the Suppliers"""
-    LOG.info("Request for supplier list")
-    log = ''
-    suppliers = []
+############################################################
+# Health Endpoint
+############################################################
+@app.route("/health")
+def health():
+    """Health Status"""
+    return jsonify(dict(status="OK")), status.HTTP_200_OK
 
-    item_id = request.args.get("item-id")
-    name = request.args.get("name")
-    address = request.args.get("address")
-    available = request.args.get("available") in ['True', 'true', 1]
-    rating = request.args.get("rating")
 
-    try:
-        if item_id:
-            item_id = int(item_id)
-            suppliers = Item.list_suppliers_of_item(item_id)
-            log = f" by item_id={item_id}"
-        elif name:
-            suppliers = Supplier.find_by_name(name)
-            log = f" by name={name}"
-        elif address:
-            suppliers = Supplier.find_by_address(address)
-            log = f" by address={address}"
-        elif available:
-            suppliers = Supplier.find_by_availability(available)
-            log = f" by availability={available}"
-        elif rating:
-            rating = float(rating)
-            suppliers = Supplier.find_by_rating(rating)
-            log = f" by rating>={rating}"
+# Define the model so that the docs reflect what can be sent
+create_model_supplier = api.model('Supplier', {
+    'name': fields.String(required=True,
+                          description='The name of the Supplier.'),
+    'available': fields.Boolean(required=True,
+                                description='Is the Supplier available?'),
+    'address': fields.String(required=True, description='The address of the Supplier.'),
+    'rating': fields.Float(required=True, description='The rating of the Supplier.')
+})
+
+supplier_model = api.inherit(
+    'SupplierModel',
+    create_model_supplier,
+    {
+        'id': fields.Integer(readOnly=True, description='The unique id assigned internally by service'),
+    }
+)
+
+create_model_item = api.model('Item', {
+    'name': fields.String(required=True,
+                          description='The name of the Item.')
+})
+
+item_model = api.inherit(
+    'ItemModel',
+    create_model_item,
+    {
+        'id': fields.Integer(readOnly=True, description='The unique id assigned internally by service'),
+    }
+)
+
+supplier_item_relation_model = api.model('Supplier-Item Relation', {
+    'supplier_id': fields.Integer(readOnly=True, description='The unique supplier id'),
+    'item_id': fields.Integer(readOnly=True, description='The unique item id')
+})
+
+supplier_args = reqparse.RequestParser()
+supplier_args.add_argument('name', type=str, required=False, help='List Suppliers by name')
+supplier_args.add_argument('available', type=inputs.boolean, required=False, help='List Suppliers by availability')
+supplier_args.add_argument('address', type=str, required=False, help='List Suppliers by address')
+supplier_args.add_argument('rating', type=float, required=False, help='List Suppliers by rating')
+supplier_args.add_argument('item-id', type=int, required=False, help='List Suppliers by related Item')
+
+
+######################################################################
+# Authorization Decorator
+######################################################################
+def token_required(f):
+    """ Helper function used when testing API keys """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'X-Api-Key' in request.headers:
+            token = request.headers['X-Api-Key']
+
+        if app.config.get('API_KEY') and app.config['API_KEY'] == token:
+            return f(*args, **kwargs)
+        else:
+            return {'message': 'Invalid or missing token'}, 401
+    return decorated
+
+
+######################################################################
+# Function to generate a random API key (good for testing)
+######################################################################
+def generate_apikey():
+    """ Helper function used when generating API keys """
+    return secrets.token_hex(16)
+
+
+######################################################################
+#  PATH: /suppliers/<supplier_id>
+######################################################################
+@api.route('/suppliers/<supplier_id>')
+@api.param('supplier_id', 'The Supplier identifier')
+class SupplierResource(Resource):
+    """
+    SupplierResource class
+
+    Allows the manipulation of a single Supplier
+    GET /supplier{id} - Returns a Supplier with the id
+    PUT /supplier{id} - Update a Supplier with the id
+    DELETE /supplier{id} -  Deletes a Supplier with the id
+    """
+    # -------------------------------------------------------------------
+    # RETRIEVE A SUPPLIER
+    # -------------------------------------------------------------------
+    @api.doc('get_suppliers')
+    @api.response(404, 'Supplier not found')
+    @api.marshal_with(supplier_model)
+    def get(self, supplier_id):
+        """
+        Retrieve a single Supplier
+
+        This endpoint will return a Supplier based on it's id
+        """
+        LOG.info("Request for supplier with id: %s", supplier_id)
+        supplier = Supplier.find(supplier_id)
+        if not supplier:
+            abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
+        return supplier.serialize(), status.HTTP_200_OK
+
+    # -------------------------------------------------------------------
+    # UPDATE A SUPPLIER
+    # -------------------------------------------------------------------
+    @api.doc('update_suppliers', security='apikey')
+    @api.response(404, 'Supplier not found')
+    @api.response(400, 'The posted Supplier data was not valid')
+    @api.expect(supplier_model)
+    @api.marshal_with(supplier_model)
+    # @token_required
+    def put(self, supplier_id):
+        """
+        Update a Supplier
+
+        This endpoint will update a Supplier based the body that is posted
+        """
+        LOG.info("Request to update supplier with id: %s", supplier_id)
+        supplier = Supplier.find(supplier_id)
+        if not supplier:
+            abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
+
+        LOG.info(f"Payload = {api.payload}")
+        supplier.deserialize(api.payload)
+        supplier.id = supplier_id
+        supplier.update()
+        LOG.info("Supplier with ID [%s] updated.", supplier.id)
+        return supplier.serialize(), status.HTTP_200_OK
+
+    # -------------------------------------------------------------------
+    # DELETE A SUPPLIER
+    # -------------------------------------------------------------------
+    @api.doc('delete_suppliers', security='apikey')
+    @api.response(204, 'Supplier deleted')
+    # @token_required
+    def delete(self, supplier_id):
+        """
+        Delete a Supplier
+
+        This endpoint will delete a Supplier based the id specified in the path
+        """
+        LOG.info("Request to delete supplier with id: %s", supplier_id)
+        supplier = Supplier.find(supplier_id)
+        if supplier:
+            supplier.delete()
+        LOG.info("Supplier with ID [%s] delete complete.", supplier_id)
+
+        return "", status.HTTP_204_NO_CONTENT
+
+# #####################################################################
+#  PATH: /suppliers
+# #####################################################################
+@api.route('/suppliers', strict_slashes=False)
+class SupplierCollection(Resource):
+    """ Handles all interactions with collections of Suppliers """
+    # -------------------------------------------------------------------
+    # LIST ALL SUPPLIERS
+    # -------------------------------------------------------------------
+    @api.doc('list_suppliers')
+    @api.expect(supplier_args, validate=True)
+    @api.marshal_list_with(supplier_model)
+    def get(self):
+        """Returns all of the Suppliers"""
+        LOG.info("Request for supplier list")
+        log = ''
+        suppliers = []
+
+        args = supplier_args.parse_args(strict=False)
+        LOG.info("Arguments parsed.")
+
+        if args['item-id']:
+            suppliers = Item.list_suppliers_of_item(args['item-id'])
+            log = f" by item_id={args['item-id']}"
+        elif args['name']:
+            suppliers = Supplier.find_by_name(args['name'])
+            log = f" by name={args['name']}"
+        elif args['address']:
+            suppliers = Supplier.find_by_address(args['address'])
+            log = f" by address={args['address']}"
+        elif args['available']:
+            suppliers = Supplier.find_by_availability(args['available'])
+            log = f" by availability={args['available']}"
+        elif args['rating']:
+            suppliers = Supplier.find_by_rating(args['rating'])
+            log = f" by rating>={args['rating']}"
         else:
             suppliers = Supplier.all()
-    except ValueError as error:
-        abort(status.HTTP_400_BAD_REQUEST, str(error))
 
-    results = [supplier.serialize() for supplier in suppliers]
-    LOG.info(f"Returning {len(results)} suppliers" + log)
-    return jsonify(results), status.HTTP_200_OK
+        results = [supplier.serialize() for supplier in suppliers]
+        LOG.info(f"Returning {len(results)} suppliers" + log)
+        return results, status.HTTP_200_OK
 
-
-######################################################################
-# LIST ALL SUPPLIERS BASED ON RATING
-######################################################################
-@app.route("/suppliers/rating/<float:rating>", methods=["GET"])
-def list_suppliers_by_rating(rating):
-    """Returns all of the Suppliers"""
-    LOG.info("Request for supplier list by rating")
-    suppliers = []
-    suppliers = Supplier.find_by_rating(rating)
-    results = [supplier.serialize() for supplier in suppliers]
-    LOG.info("Returning %d suppliers", len(results))
-    return jsonify(results), status.HTTP_200_OK
-
-
-######################################################################
-# LIST ALL SUPPLIERS SORT BY RATING
-######################################################################
-@app.route("/suppliers/rating", methods=["GET"])
-def list_suppliers_sort_by_rating():
-    """Returns all of the Suppliers"""
-    LOG.info("Request for supplier list sort by rating")
-    suppliers = []
-    suppliers = Supplier.all()
-    results = [supplier.serialize() for supplier in suppliers]
-    sorted_res = sorted(results, key=lambda d: d["rating"], reverse=True)
-    LOG.info("Returning %d suppliers", len(results))
-    return jsonify(sorted_res), status.HTTP_200_OK
-
-
-######################################################################
-# RETRIEVE A SUPPLIER
-######################################################################
-@app.route("/suppliers/<int:supplier_id>", methods=["GET"])
-def get_suppliers(supplier_id):
-    """
-    Retrieve a single Supplier
-
-    This endpoint will return a Supplier based on it's id
-    """
-    LOG.info("Request for supplier with id: %s", supplier_id)
-    supplier = Supplier.find(supplier_id)
-    if not supplier:
-        abort(status.HTTP_404_NOT_FOUND,
-              f"Supplier with id '{supplier_id}' was not found.")
-
-    LOG.info("Returning supplier: %s", supplier.name)
-    return jsonify(supplier.serialize()), status.HTTP_200_OK
-
-
-######################################################################
-# ADD A NEW SUPPLIER
-######################################################################
-@app.route("/suppliers", methods=["POST"])
-def create_suppliers():
-    """
-    Creates a Supplier
-    This endpoint will create a Supplier based the data in the body that is posted
-    """
-    try:
+    # -------------------------------------------------------------------
+    # ADD A NEW SUPPLIER
+    # -------------------------------------------------------------------
+    @api.doc('create_suppliers', security='apikey')
+    @api.response(400, 'The posted data was not valid')
+    @api.expect(create_model_supplier)
+    @api.marshal_with(supplier_model, code=201)
+    # @token_required
+    def post(self):
+        """
+        Creates a Supplier
+        This endpoint will create a Supplier based the data in the body that is posted
+        """
         LOG.info("Request to create a supplier")
         check_content_type("application/json")
         supplier = Supplier()
-        supplier.deserialize(request.get_json())
+        LOG.info(f"Payload = {api.payload}")
+        supplier.deserialize(api.payload)
         supplier.create()
-        message = supplier.serialize()
-        location_url = url_for(
-            "get_suppliers", supplier_id=supplier.id, _external=True)
-
+        location_url = api.url_for(SupplierResource, supplier_id=supplier.id, _external=True)
         LOG.info("Supplier with ID [%s] created.", supplier.id)
-    except DataValidationError as error:
-        abort(status.HTTP_400_BAD_REQUEST, str(error))
-    return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
+        return supplier.serialize(), status.HTTP_201_CREATED, {"Location": location_url}
 
+# #####################################################################
+# PATH: /suppliers/rating
+# #####################################################################
+@api.route("/suppliers/rating", strict_slashes=False)
+class RateSuppliers(Resource):
+    """Action Rating: List all suppliers in descending order of their rating."""
+    # -------------------------------------------------------------------
+    # SORT SUPPLIERS BY THEIR RATING
+    # -------------------------------------------------------------------
+    @api.doc('rating_suppliers')
+    @api.marshal_with(supplier_model)
+    def get(self):
+        """Returns all of the Suppliers sorted by their rating."""
+        LOG.info("Request for supplier list sort by rating")
+        suppliers = []
+        suppliers = Supplier.all()
+        results = [supplier.serialize() for supplier in suppliers]
+        sorted_res = sorted(results, key=lambda d: d["rating"], reverse=True)
+        LOG.info("Returning %d suppliers", len(results))
+        return sorted_res, status.HTTP_200_OK
 
-######################################################################
-# UPDATE AN EXISTING SUPPLIER
-######################################################################
-@app.route("/suppliers/<int:supplier_id>", methods=["PUT"])
-def update_suppliers(supplier_id):
+# #####################################################################
+# PATH: /suppliers/<supplier_id>/active
+# #####################################################################
+@api.route("/suppliers/<supplier_id>/active")
+@api.param('supplier_id', 'The Supplier identifier')
+class ActivateSuppliers(Resource):
+    """Action Activate: Change the availability status of Supplier to True."""
+    @api.doc('activate_suppliers')
+    @api.response(404, 'Supplier not found')
+    @api.response(400, 'Supplier is already active')
+    @api.marshal_with(supplier_model)
+    def put(self, supplier_id):
+        """
+        Activate a Supplier
+        This endpoint will update a Supplier based the body that is posted
+        """
+        LOG.info("Request to activate supplier with id: %s", supplier_id)
+
+        supplier = Supplier.find(supplier_id)
+
+        if not supplier:
+            abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
+
+        if supplier.available:
+            abort(status.HTTP_400_BAD_REQUEST, f"Supplier with id '{supplier_id}' is already active.")
+
+        supplier.available = True
+        supplier.id = supplier_id
+        supplier.update()
+
+        LOG.info("Supplier with ID [%s] activated", supplier.id)
+        return supplier.serialize(), status.HTTP_200_OK
+
+# #####################################################################
+# PATH: /suppliers/<supplier_id>/active
+# #####################################################################
+@api.route("/suppliers/<supplier_id>/deactive")
+@api.param('supplier_id', 'The Supplier identifier')
+class DeactiveSupplier(Resource):
+    """Action Deactivate: Change the availability status of Supplier to False."""
+    @api.doc('deactivate_suppliers')
+    @api.response(404, 'Supplier not found')
+    @api.response(400, 'Supplier is already deactive')
+    @api.marshal_with(supplier_model)
+    def delete(self, supplier_id):
+        """
+        Deactivate  a Supplier
+
+        This endpoint will update a Supplier based the body that is posted
+        """
+        LOG.info("Request to deactivate supplier with id: %s", supplier_id)
+
+        supplier = Supplier.find(supplier_id)
+
+        if not supplier:
+            abort(status.HTTP_404_NOT_FOUND, f"Supplier with id '{supplier_id}' was not found.")
+
+        if not supplier.available:
+            abort(status.HTTP_400_BAD_REQUEST, f"Supplier with id '{supplier_id}' is already deactivated.")
+
+        supplier.available = False
+        supplier.id = supplier_id
+        supplier.update()
+
+        LOG.info("Supplier with ID [%s] deactivated", supplier.id)
+        return supplier.serialize(), status.HTTP_200_OK
+
+# #####################################################################
+#  PATH: /items
+# #####################################################################
+@api.route('/items', strict_slashes=False)
+class ItemCollection(Resource):
+    """ Handles all interactions with collections of Items """
+    # ------------------------------------------------------------------
+    # LIST ALL ITEMS
+    # ------------------------------------------------------------------
+    @api.doc('list_items')
+    @api.marshal_list_with(item_model)
+    def get(self):
+        """Returns all of the Suppliers"""
+        LOG.info("Request for item list")
+        items = []
+        items = Item.all()
+
+        results = [item.serialize() for item in items]
+        LOG.info("Returning %d items", len(results))
+        return results, status.HTTP_200_OK
+
+    # ------------------------------------------------------------------
+    # ADD A NEW ITEM
+    # ------------------------------------------------------------------
+    @api.doc('create_items', security='apikey')
+    @api.response(400, 'The posted data was not valid')
+    @api.expect(create_model_item)
+    @api.marshal_with(item_model, code=201)
+    @token_required
+    def post(self):
+        """
+        Creates an item
+        This endpoint will create an item based the data in the body that is posted
+        """
+        try:
+            LOG.info("Request to create an item")
+            check_content_type("application/json")
+            item = Item()
+            item.deserialize(api.payload)
+            item.create()
+            message = item.serialize()
+
+            LOG.info("Item with ID [%s] created.", item.id)
+        except DataValidationError as error:
+            abort(status.HTTP_400_BAD_REQUEST, str(error))
+        return message, status.HTTP_201_CREATED
+
+# #####################################################################
+#  PATH: /items/{id}
+# #####################################################################
+@api.route('/items/<item_id>')
+@api.param('item_id', 'The Item identifier')
+class ItemResource(Resource):
     """
-    Update a Supplier
-
-    This endpoint will update a Supplier based the body that is posted
+    ItemResource class
+    Allows the manipulation of a single Pet
+    GET /pet{id} - Returns a Pet with the id
+    DELETE /pet{id} -  Deletes a Pet with the id
     """
-    LOG.info("Request to update supplier with id: %s", supplier_id)
-    check_content_type("application/json")
+    # ------------------------------------------------------------------
+    # RETRIEVE A PET
+    # ------------------------------------------------------------------
+    @api.doc('get_item')
+    @api.response(404, 'Item not found')
+    @api.marshal_with(item_model)
+    def get(self, item_id):
+        """
+        Retrieve a single Item
+        This endpoint will return a Pet based on it's id
+        """
+        LOG.info("Request to Retrieve a item with id [%s]", item_id)
+        item = Item.find(item_id)
+        if not item:
+            abort(status.HTTP_404_NOT_FOUND, f"Item with id '{item_id}' was not found.")
+        return item.serialize(), status.HTTP_200_OK
 
-    supplier = Supplier.find(supplier_id)
-    if not supplier:
-        abort(status.HTTP_404_NOT_FOUND,
-              f"Supplier with id '{supplier_id}' was not found.")
+    # ------------------------------------------------------------------
+    # DELETE AN ITEM
+    # ------------------------------------------------------------------
+    @api.doc('delete_items', security='apikey')
+    @api.response(204, 'Item deleted')
+    @token_required
+    def delete(self, item_id):
+        """
+        Delete an Item
 
-    supplier.deserialize(request.get_json())
-    supplier.id = supplier_id
-    supplier.update()
+        This endpoint will delete an Item based the id specified in the path
+        """
+        LOG.info("Request to delete item with id: %s", item_id)
+        item = Item.find_by_id(item_id)
+        if item:
+            item.delete()
 
-    LOG.info("Supplier with ID [%s] updated.", supplier.id)
-    return jsonify(supplier.serialize()), status.HTTP_200_OK
+        LOG.info("Item with ID [%s] delete complete.", item_id)
+        return "", status.HTTP_204_NO_CONTENT
 
-
-######################################################################
-# ACTIVATE A SUPPLIER
-######################################################################
-@app.route("/suppliers/<int:supplier_id>/active", methods=["PUT"])
-def activate_suppliers(supplier_id):
+# #####################################################################
+#  PATH: /suppliers/{sid}}/items/{iid}
+# #####################################################################
+@api.route('/suppliers/<supplier_id>/items/<item_id>')
+@api.param('supplier_id', 'The Supplier identifier')
+@api.param('item_id', 'The Item identifier')
+class SupplierItemRelation(Resource):
     """
-    Activate  a Supplier
+    SupplierItemRelation class
+    Allows the manipulation of a Supplier-Item Relation
 
-    This endpoint will update a Supplier based the body that is posted
+    POST /suppliers/<supplier_id>/items/<item_id> - Create a Supplier-Item Relation
+    DELETE /suppliers/<supplier_id>/items/<item_id> -  Deletes a Supplier-Item Relation
     """
-    LOG.info("Request to activate supplier with id: %s", supplier_id)
+    # ------------------------------------------------------------------
+    # ADD AN ITEM TO A SUPPLIER
+    # ------------------------------------------------------------------
+    @api.doc('add_supplier_item_relation')
+    @api.response(404, 'Supplier or Item not found')
+    @api.marshal_with(supplier_item_relation_model)
+    def post(self, supplier_id: int, item_id: int):
+        """
+        Add an item to a Supplier
 
-    supplier = Supplier.find(supplier_id)
+        The endpoint will add an item to a supplier in the relationship table
+        """
+        LOG.info("Request to add an item to a supplier with id: %s", supplier_id)
+        # item_id = request.args.get("item-id")
+        item = Item.find_by_id(item_id)
+        if not item:
+            abort(status.HTTP_404_NOT_FOUND, f"Item with id '{item_id}' was not found.")
+        Supplier.create_item_for_supplier(supplier_id=supplier_id, item=item)
+        message = {"supplier_id": supplier_id, "item_id": item_id}
 
-    if not supplier:
-        abort(status.HTTP_404_NOT_FOUND,
-              f"Supplier with id '{supplier_id}' was not found.")
+        LOG.info("Successfully add an item %s to supplier %s", item_id, supplier_id)
+        return message, status.HTTP_201_CREATED
 
-    if supplier.available:
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Supplier with id '{supplier_id}' is already active.")
+    # ------------------------------------------------------------------
+    # DELETE AN SUPPLIER
+    # ------------------------------------------------------------------
+    @api.doc('delete_supplier_item_relation', security='apikey')
+    @api.response(204, 'Supplier-Item relation deleted')
+    # @token_required
+    def delete(self, supplier_id: int, item_id: int):
+        """
+        Delete an item of a Supplier
+        """
+        LOG.info("Delete an item of supplier %s", supplier_id)
+        item = Item.find_by_id(item_id)
+        if item:
+            Supplier.delete_item_for_supplier(supplier_id, item)
 
-    supplier.available = True
-    supplier.id = supplier_id
-    supplier.update()
-
-    LOG.info("Supplier with ID [%s] activated", supplier.id)
-    return jsonify(supplier.serialize()), status.HTTP_200_OK
-
-
-######################################################################
-# DEACTIVATE A SUPPLIER
-######################################################################
-@app.route("/suppliers/<int:supplier_id>/deactive", methods=["DELETE"])
-def deactivate_suppliers(supplier_id):
-    """
-    Deactivate  a Supplier
-
-    This endpoint will update a Supplier based the body that is posted
-    """
-    LOG.info("Request to deactivate supplier with id: %s", supplier_id)
-
-    supplier = Supplier.find(supplier_id)
-
-    if not supplier:
-        abort(status.HTTP_404_NOT_FOUND,
-              f"Supplier with id '{supplier_id}' was not found.")
-
-    if not supplier.available:
-        abort(status.HTTP_400_BAD_REQUEST,
-              f"Supplier with id '{supplier_id}' is already deactivated.")
-
-    supplier.available = False
-    supplier.id = supplier_id
-    supplier.update()
-
-    LOG.info("Supplier with ID [%s] deactivated", supplier.id)
-    return jsonify(supplier.serialize()), status.HTTP_200_OK
-
+        LOG.info("Item with ID [%s] delete for supplier %s complete.", item_id, supplier_id)
+        return "", status.HTTP_204_NO_CONTENT
 
 ######################################################################
-# DELETE A SUPPLIER
+#  PATH: /suppliers/{sid}}/items
 ######################################################################
-@app.route("/suppliers/<int:supplier_id>", methods=["DELETE"])
-def delete_suppliers(supplier_id):
-    """
-    Delete a Supplier
+@api.route('/suppliers/<supplier_id>/items', strict_slashes=False)
+@api.param('supplier_id', 'The Supplier identifier')
+class SupplierItemRelationCollection(Resource):
+    """ Handles interactions with collections of Items of some supplier """
+    # ------------------------------------------------------------------
+    # LIST ALL ITEMS OF A SUPPLIER
+    # ------------------------------------------------------------------
+    @api.doc('list_items_of_supplier')
+    @api.response(404, 'Supplier not found')
+    @api.marshal_list_with(item_model)
+    def get(self, supplier_id):
+        """ Returns all of the Items of a Supplier """
+        LOG.info("List all items of supplier %s", supplier_id)
+        items = []
+        items = Supplier.list_items_of_supplier(supplier_id)
 
-    This endpoint will delete a Supplier based the id specified in the path
-    """
-    LOG.info("Request to delete supplier with id: %s", supplier_id)
-    supplier = Supplier.find(supplier_id)
-    if supplier:
-        supplier.delete()
+        results = [item.serialize() for item in items]
+        LOG.info("Returning %d items", len(results))
+        return results, status.HTTP_200_OK
 
-    LOG.info("Supplier with ID [%s] delete complete.", supplier_id)
-    return "", status.HTTP_204_NO_CONTENT
-
-######################################################################
-# ADD A NEW Item
-######################################################################
-@app.route("/items", methods=["POST"])
-def create_items():
-    """
-    Creates an item
-    This endpoint will create an item based the data in the body that is posted
-    """
-    try:
-        LOG.info("Request to create an item")
-        check_content_type("application/json")
-        item = Item()
-        item.deserialize(request.get_json())
-        item.create()
-        message = item.serialize()
-
-        LOG.info("Item with ID [%s] created.", item.id)
-    except DataValidationError as error:
-        abort(status.HTTP_400_BAD_REQUEST, str(error))
-    return jsonify(message), status.HTTP_201_CREATED
-
-######################################################################
-# DELETE AN ITEM
-######################################################################
-@app.route("/items/<int:item_id>", methods=["DELETE"])
-def delete_items(item_id):
-    """
-    Delete an Item
-
-    This endpoint will delete an Item based the id specified in the path
-    """
-    LOG.info("Request to delete supplier with id: %s", item_id)
-    item = Item.find_by_id(item_id)
-    if item:
-        item.delete()
-
-    LOG.info("Item with ID [%s] delete complete.", item_id)
-    return "", status.HTTP_204_NO_CONTENT
-
-######################################################################
-# LIST ALL ITEMS
-######################################################################
-@app.route("/items", methods=["GET"])
-def list_items():
-    """Returns all of the Suppliers"""
-    LOG.info("Request for item list")
-    items = []
-    items = Item.all()
-
-    results = [item.serialize() for item in items]
-    LOG.info("Returning %d items", len(results))
-    return jsonify(results), status.HTTP_200_OK
-
-
-######################################################################
-# ADD AN ITEM TO A SUPPLIER
-######################################################################
-@app.route("/suppliers/<int:supplier_id>/items/<int:item_id>", methods=["POST"])
-def add_item_suppliers(supplier_id, item_id):
-    """
-    Add an item to a Supplier
-
-    The endpoint will add an item to a supplier in the relationship table
-    """
-    LOG.info("Request to add an item to a supplier with id: %s", supplier_id)
-    # item_id = request.args.get("item-id")
-    item = Item.find_by_id(item_id)
-    print(item.id)
-    Supplier.create_item_for_supplier(supplier_id=supplier_id, item=item)
-    message = {"supplier_id": supplier_id, "item_id": item_id}
-
-    LOG.info("Successfully add an item %s to supplier %s", item_id, supplier_id)
-    return jsonify(message), status.HTTP_201_CREATED
-
-######################################################################
-# LIST ALL ITEMS OF A SUPPLIER
-######################################################################
-
-
-@app.route("/suppliers/<int:supplier_id>/items", methods=["GET"])
-def list_item_suppliers(supplier_id):
-    LOG.info("List all items of supplier %s", supplier_id)
-    items = []
-    items = Supplier.list_items_of_supplier(supplier_id)
-
-    results = [item.serialize() for item in items]
-    LOG.info("Returning %d items", len(results))
-    return jsonify(results), status.HTTP_200_OK
-
-######################################################################
-# DELETE AN SUPPLIER
-######################################################################
-
-
-@app.route("/suppliers/<int:supplier_id>/items/<int:item_id>", methods=["DELETE"])
-def delete_item_suppliers(supplier_id, item_id):
-    LOG.info("Delete an item of supplier %s", supplier_id)
-    # item_id = request.args.get("item-id")
-    item = Item.find_by_id(item_id)
-
-    Supplier.delete_item_for_supplier(supplier_id, item)
-
-    LOG.info(
-        "Item with ID [%s] delete for supplier %s complete.", item_id, supplier_id)
-    return "", status.HTTP_204_NO_CONTENT
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
 ######################################################################
-
+# def abort(error_code: int, message: str):
+#     """Logs errors before aborting"""
+#     LOG.info(message)
+#     api.abort(error_code, message)
 
 def check_content_type(media_type):
     """Checks that the media type is correct"""
