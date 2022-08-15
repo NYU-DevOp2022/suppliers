@@ -50,8 +50,8 @@ api = Api(app,
           default='suppliers',
           default_label='Supplier operations',
           doc='/apidocs',    # default also could use doc='/apidocs/'
-          authorizations=authorizations
-          # , prefix='/api'
+          authorizations=authorizations,
+          prefix='/api'
           )
 
 # Import the route After the Flask app is created

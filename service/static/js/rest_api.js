@@ -1,6 +1,6 @@
 $(function () {
 
-
+    var BASE_URL = '/api';
     // ****************************************
     //  U T I L I T Y   F U N C T I O N S
     // ****************************************
@@ -60,7 +60,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/suppliers",
+            url: BASE_URL+"/suppliers",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -103,7 +103,7 @@ $(function () {
 
         let ajax = $.ajax({
                 type: "PUT",
-                url: `/suppliers/${supplier_id}`,
+                url: `${BASE_URL}/suppliers/${supplier_id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data)
             })
@@ -133,7 +133,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/suppliers/${supplier_id}`,
+            url: `${BASE_URL}/suppliers/${supplier_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -163,7 +163,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/suppliers/${supplier_id}`,
+            url: `${BASE_URL}/suppliers/${supplier_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -218,7 +218,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/suppliers?${queryString}`,
+            url: `${BASE_URL}/suppliers?${queryString}`,
         })
 
         ajax.done(function(res){
@@ -294,7 +294,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/items",
+            url: BASE_URL+"/items",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -322,7 +322,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/items/${item_id}`,
+            url: `${BASE_URL}/items/${item_id}`,
             contentType: "application/json",
             data: '',
         })
@@ -357,7 +357,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/items`,
+            url: `${BASE_URL}/items`,
             contentType: "application/json",
             data: ''
         })
@@ -400,7 +400,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/items`,
+            url: `${BASE_URL}/items`,
             contentType: "application/json",
             data: ''
         })
@@ -452,7 +452,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/suppliers/${supplier_id}/items`,
+            url: `${BASE_URL}/suppliers/${supplier_id}/items`,
             contentType: "application/json",
             data: ''
         })
@@ -500,7 +500,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: `/suppliers/${supplier_id}/items/${item_id}`,
+            url: `${BASE_URL}/suppliers/${supplier_id}/items/${item_id}`,
             contentType: "application/json",
             data: ''
         });
@@ -522,7 +522,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/suppliers/${supplier_id}/items/${item_id}`,
+            url: `${BASE_URL}/suppliers/${supplier_id}/items/${item_id}`,
             contentType: "application/json",
             data: ''
         });

@@ -31,7 +31,7 @@ from compare import expect
 def step_impl(context):
     """ Delete all Suppliers and load new ones """
     # List all of the pets and delete them one by one
-    rest_endpoint = f"{context.BASE_URL}/suppliers"
+    rest_endpoint = f"{context.BASE_URL}/api/suppliers"
     context.resp = requests.get(rest_endpoint)
     expect(context.resp.status_code).to_equal(200)
     for supplier in context.resp.json():
