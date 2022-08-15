@@ -10,6 +10,7 @@ Background:
         | Tony       | True      | NY       | 4.9        |
         | Tom        | False     | CA       | 4.5        |
         | Frank      | True      | NY       | 4.6        |
+
     
     Given the following items
         | name       |
@@ -118,6 +119,41 @@ Scenario: Update a Supplier
     And I should see "Dongzhe" in the results
     And I should not see "Tony" in the results
 
+Scenario: Create a Item
+    When I visit the "Home Page"
+    And I press the "Items" button
+    And I set the "Name" to "Coat" in the item field
+    And I press the "Create" button in the item field
+    Then I should see the message "Success" in the item field
+    When I copy the "Id" in the item field
+    And I press the "Clear" button in the item field
+    Then the "Id" in the item field should be empty
+    And the "Name" in the item field should be empty
+
+
+Scenario: Search for items
+    When I visit the "Home Page"
+    And I press the "Items" button
+    And I press the "Clear" button in the item field
+    And I set the "Name" to "Ipad" in the item field
+    And I press the "Search" button in the item field
+    Then I should see the message "Success" in the item field
+    Then I should see "Ipad" in the results in the item field
+
+
+Scenario: Delete a item
+    When I visit the "Home Page"
+    And I press the "Items" button
+    And I set the "Name" to "Coat" in the item field
+    And I press the "Create" button in the item field
+    Then I should see the message "Success" in the item field
+    When I copy the "Id" in the item field
+    And I press the "Clear" button in the item field
+    Then the "Id" in the item field should be empty
+    And the "Name" in the item field should be empty
+    When I paste the "Id" in the item field
+    And I press the "Delete" button in the item field
+    Then I should see the message "Item has been Deleted!" in the item field
 
 Scenario: Add an item to a supplier
     When I visit the "Home Page"

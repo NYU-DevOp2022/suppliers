@@ -32,6 +32,10 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 ID_PREFIX = 'supplier_'
+ID_PREFIX_ITEM = 'item_'
+
+# INDEX_URL = 'http://localhost:8080/index'
+
 
 @when('I visit the "home page"')
 def step_impl(context):
@@ -166,3 +170,76 @@ def step_impl(context, element_name, text_string):
     )
     element.clear()
     element.send_keys(text_string)
+
+
+##################################################################
+# ITEM
+##################################################################
+
+
+@when('I set the "{element_name}" to "{text_string}" in the item field')
+def step_impl(context, element_name, text_string):
+    element_id = ID_PREFIX_ITEM + element_name.lower().replace(' ', '_')
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
+    element.send_keys(text_string)
+
+@when('I press the "{button}" button in the item field')
+def step_impl(context, button):
+    button_id = button.lower() + '-btn-item'
+    context.driver.find_element_by_id(button_id).click()
+
+@when('I copy the "{element_name}" in the item field')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX_ITEM + element_name.lower().replace(' ', '_')
+    element = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    context.clipboard = element.get_attribute('value')
+    logging.info('Clipboard contains: %s', context.clipboard)
+
+@then('the "{element_name}" in the item field should be empty')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX_ITEM + element_name.lower().replace(' ', '_')
+    element = context.driver.find_element_by_id(element_id)
+    expect(element.get_attribute('value')).to_be(u'')
+
+@when('I paste the "{element_name}" in the item field')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX_ITEM + element_name.lower().replace(' ', '_')
+    element = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    element.clear()
+    element.send_keys(context.clipboard)
+
+@then('I should see "{text_string}" in the "{element_name}" in the item field')
+def step_impl(context, text_string, element_name):
+    element_id = ID_PREFIX_ITEM + element_name.lower().replace(' ', '_')
+    found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element_value(
+            (By.ID, element_id),
+            text_string
+        )
+    )
+    expect(found).to_be(True)
+
+@then('I should see "{name}" in the results in the item field')
+def step_impl(context, name):
+    found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'search_results_item'),
+            name
+        )
+    )
+    expect(found).to_be(True)
+
+@then('I should see the message "{message}" in the item field')
+def step_impl(context, message):
+    found = WebDriverWait(context.driver, context.WAIT_SECONDS).until(
+        expected_conditions.text_to_be_present_in_element(
+            (By.ID, 'flash_message_item'),
+            message
+        )
+    )
+    expect(found).to_be(True)
