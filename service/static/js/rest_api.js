@@ -479,7 +479,7 @@ $(function () {
             let firstItem = "";
             for(let i = 0; i < response.length; i++) {
                 let item = response[i];
-                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "add-btn">Add</button></td></tr>`;
+                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td id="item_name">${item.name}</td><td><button type="submit" id= "add-btn">Add</button></td></tr>`;
                 if (i == 0) {
                     firstItem = item;
                 }
@@ -492,11 +492,11 @@ $(function () {
                 update_form_data_item(firstItem)
             }
 
-            flash_message_item("Success")
+            flash_message("Success")
         });
 
         ajax.fail(function(response){
-            flash_message_item(response.responseJSON.message)
+            flash_message(response.responseJSON.message)
         });
     });
 
@@ -531,7 +531,7 @@ $(function () {
             let firstItem = "";
             for(let i = 0; i < response.length; i++) {
                 let item = response[i];
-                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "remove-btn">delete</button></td></tr>`;
+                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "remove-btn">Remove</button></td></tr>`;
                 if (i == 0) {
                     firstItem = item;
                 }
@@ -544,7 +544,7 @@ $(function () {
                 update_form_data_item(firstItem)
             }
 
-            flash_message_item("Success")
+            flash_message("Success")
         });
 
         ajax.fail(function(response){
@@ -568,7 +568,6 @@ $(function () {
         });
 
         ajax.done(function(res){
-            //alert(res.toSource())
             flash_message("Success")
         });
 

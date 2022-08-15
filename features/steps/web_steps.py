@@ -32,7 +32,6 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
 ID_PREFIX = 'supplier_'
-# INDEX_URL = 'http://localhost:8080/index'
 
 @when('I visit the "home page"')
 def step_impl(context):
@@ -109,6 +108,10 @@ def step_impl(context, element_name):
 @when('I press the "{button}" button')
 def step_impl(context, button):
     button_id = button.lower() + '-btn'
+    if(button == "Item List"):
+        button_id = 'show-btn'
+    elif(button == "Show Items"):
+        button_id = 'list-item-btn'
     context.driver.find_element_by_id(button_id).click()
 
 @then('I should see "{name}" in the results')
