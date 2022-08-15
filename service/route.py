@@ -387,7 +387,7 @@ class ItemCollection(Resource):
     @api.response(400, 'The posted data was not valid')
     @api.expect(create_model_item)
     @api.marshal_with(item_model, code=201)
-    @token_required
+    # @token_required
     def post(self):
         """
         Creates an item
@@ -440,7 +440,7 @@ class ItemResource(Resource):
     # ------------------------------------------------------------------
     @api.doc('delete_items', security='apikey')
     @api.response(204, 'Item deleted')
-    @token_required
+    # @token_required
     def delete(self, item_id):
         """
         Delete an Item
