@@ -118,6 +118,10 @@ Scenario: Update a Supplier
     And I should see "Dongzhe" in the results
     And I should not see "Tony" in the results
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> a874f1f6e6d0b52c30794369716aad97440c04ea
 Scenario: Add an item to a supplier
     When I visit the "Home Page"
     And I set the "Name" to "Amy"
@@ -218,3 +222,7 @@ Scenario: Deactivate a Supplier
     And I press the "Search" button
     Then I should see the message "Success"
     And I should see "Frank" in the results
+<<<<<<< HEAD
+=======
+
+>>>>>>> a874f1f6e6d0b52c30794369716aad97440c04ea
