@@ -289,7 +289,7 @@ $(function () {
     });
 
     // ****************************************
-    // Activate a Supplier
+    // Deactivate a Supplier
     // ****************************************
 
     $("#deactivate-btn").click(function () {
