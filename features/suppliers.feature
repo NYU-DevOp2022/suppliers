@@ -11,6 +11,10 @@ Background:
         | Tom        | False     | CA       | 4.5        |
         | Frank      | True      | NY       | 4.6        |
 
+    
+    Given the following items
+        | name       |
+        | Ipad       |
 
 Scenario: The server is running
     When I visit the "Home Page"
@@ -53,7 +57,25 @@ Scenario: List all suppliers
     And I should see "Tony" in the results
     And I should not see "Tom" in the results
 
-Scenario: Search for suppliers
+Scenario: Delete a supplier
+    When I visit the "Home Page"
+    And I set the "Name" to "Amy"
+    And I select "False" in the "Available" dropdown
+    And I set the "Address" to "NY"
+    And I set the "Rating" to "4.5"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "Name" field should be empty
+    And the "Address" field should be empty
+    And the "Rating" field should be empty
+    When I paste the "Id" field
+    And I press the "Delete" button
+    Then I should see the message "Supplier has been Deleted!"
+
+Scenario: Query supplier by address
     When I visit the "Home Page"
     And I press the "Clear" button
     And I set the "Address" to "NY"
@@ -132,3 +154,104 @@ Scenario: Delete a item
     When I paste the "Id" in the item field
     And I press the "Delete" button in the item field
     Then I should see the message "Item has been Deleted!" in the item field
+
+Scenario: Add an item to a supplier
+    When I visit the "Home Page"
+    And I set the "Name" to "Amy"
+    And I select "False" in the "Available" dropdown
+    And I set the "Address" to "NY"
+    And I set the "Rating" to "4.5"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    When I press the "Item List" button
+    Then I should see the message "Success"
+    And I should see "Ipad" in the results
+    When I paste the "Id" field
+    And I press the "Add" button
+    Then I should see the message "Success"
+
+Scenario: List items of a supplier
+    When I visit the "Home Page"
+    And I set the "Name" to "Amy"
+    And I select "False" in the "Available" dropdown
+    And I set the "Address" to "NY"
+    And I set the "Rating" to "4.5"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    When I press the "Item List" button
+    Then I should see the message "Success"
+    And I should see "Ipad" in the results
+    When I paste the "Id" field
+    And I press the "Add" button
+    Then I should see the message "Success"
+    When I press the "Show Items" button
+    Then I should see the message "Success"
+    And I should see "Ipad" in the results
+
+Scenario: Delete an item of a supplier
+    When I visit the "Home Page"
+    And I set the "Name" to "Amy"
+    And I select "False" in the "Available" dropdown
+    And I set the "Address" to "NY"
+    And I set the "Rating" to "4.5"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    When I press the "Item List" button
+    Then I should see the message "Success"
+    And I should see "Ipad" in the results
+    When I paste the "Id" field
+    And I press the "Add" button
+    Then I should see the message "Success"
+    When I press the "Show Items" button
+    Then I should see the message "Success"
+    And I should see "Ipad" in the results
+    When I press the "Remove" button
+    Then I should see the message "Success"
+    And I should not see "Ipad" in the results
+
+Scenario: Activate a Supplier
+    When I visit the "Home Page"
+    And I set the "Name" to "Tom"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Tom" in the "Name" field
+    And I should see "False" in the "Available" dropdown
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Activate" button
+    Then I should see the message "Success"
+    And I should see "Tom" in the "Name" field
+    When I press the "Clear" button
+    And I select "True" in the "Available" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Tom" in the results
+
+Scenario: Deactivate a Supplier
+    When I visit the "Home Page"
+    And I set the "Name" to "Frank"
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Frank" in the "Name" field
+    And I should see "True" in the "Available" dropdown
+    When I copy the "Id" field
+    And I press the "Clear" button
+    And I paste the "Id" field
+    And I press the "Deactivate" button
+    Then I should see the message "Success"
+    And I should see "Frank" in the "Name" field
+    When I press the "Clear" button
+    And I select "False" in the "Available" dropdown
+    And I press the "Search" button
+    Then I should see the message "Success"
+    And I should see "Frank" in the results

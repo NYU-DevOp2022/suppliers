@@ -258,6 +258,68 @@ $(function () {
     });
 
     // ****************************************
+    // Activate a Supplier
+    // ****************************************
+
+    $("#activate-btn").click(function () {
+
+        let supplier_id = $("#supplier_id").val();
+
+        supplier_id = parseInt(supplier_id);
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `${BASE_URL}/suppliers/${supplier_id}/active`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            update_form_data(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+    });
+
+    // ****************************************
+    // Deactivate a Supplier
+    // ****************************************
+
+    $("#deactivate-btn").click(function () {
+
+        let supplier_id = $("#supplier_id").val();
+
+        supplier_id = parseInt(supplier_id);
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "DELETE",
+            url: `${BASE_URL}/suppliers/${supplier_id}/deactive`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            update_form_data(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+    });
+
+    // ****************************************
     // Item
     // ****************************************
 
@@ -417,7 +479,7 @@ $(function () {
             let firstItem = "";
             for(let i = 0; i < response.length; i++) {
                 let item = response[i];
-                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "add-btn">Add</button></td></tr>`;
+                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td id="item_name">${item.name}</td><td><button type="submit" id= "add-btn">Add</button></td></tr>`;
                 if (i == 0) {
                     firstItem = item;
                 }
@@ -430,11 +492,11 @@ $(function () {
                 update_form_data_item(firstItem)
             }
 
-            flash_message_item("Success")
+            flash_message("Success")
         });
 
         ajax.fail(function(response){
-            flash_message_item(response.responseJSON.message)
+            flash_message(response.responseJSON.message)
         });
     });
 
@@ -469,7 +531,7 @@ $(function () {
             let firstItem = "";
             for(let i = 0; i < response.length; i++) {
                 let item = response[i];
-                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "remove-btn">delete</button></td></tr>`;
+                table +=  `<tr id="row_${i}"><td id="item_id">${item.id}</td><td>${item.name}</td><td><button type="submit" id= "remove-btn">Remove</button></td></tr>`;
                 if (i == 0) {
                     firstItem = item;
                 }
@@ -482,7 +544,7 @@ $(function () {
                 update_form_data_item(firstItem)
             }
 
-            flash_message_item("Success")
+            flash_message("Success")
         });
 
         ajax.fail(function(response){
@@ -506,7 +568,6 @@ $(function () {
         });
 
         ajax.done(function(res){
-            //alert(res.toSource())
             flash_message("Success")
         });
 
