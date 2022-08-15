@@ -2,6 +2,7 @@ import requests
 from behave import given
 from compare import expect
 
+
 @given('the following items')
 def step_impl(context):
     """ Delete all Suppliers and load new ones """
