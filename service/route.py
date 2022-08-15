@@ -37,7 +37,7 @@ LOG = create_logger(app)
 ######################################################################
 # GET HTML
 ######################################################################
-@app.route("/index")
+@app.route("/")
 def index():
     """Base URL for our service"""
     return app.send_static_file("index.html")

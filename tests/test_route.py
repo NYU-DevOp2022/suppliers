@@ -44,8 +44,8 @@ from unittest.mock import patch
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/testdb"
 )
-BASE_URL = "/suppliers"
-ITEM_URL = "/items"
+BASE_URL = "/api/suppliers"
+ITEM_URL = "/api/items"
 CONTENT_TYPE_JSON = "application/json"
 
 
@@ -143,9 +143,15 @@ class TestSupplierService(unittest.TestCase):
 
     def test_index(self):
         """It should return the index page"""
-        response = self.client.get("/index")
+        response = self.client.get("/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(b"NYU Devops suppliers", response.data)
+
+    def test_index_item(self):
+        """It should return the item page"""
+        response = self.client.get("/item")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(b"NYU Devops items", response.data)
 
     def test_get_supplier_list(self):
         """It should Get a list of Suppliers"""
