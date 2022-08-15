@@ -147,6 +147,11 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(b"NYU Devops suppliers", response.data)
 
+    def test_health(self):
+        """It should return the healthy page"""
+        response = self.client.get("/health")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_index_item(self):
         """It should return the item page"""
         response = self.client.get("/item")
