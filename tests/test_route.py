@@ -421,6 +421,15 @@ class TestSupplierService(unittest.TestCase):
         new_item = response.get_json()
         self.assertEqual(new_item["name"], test_item.name)
 
+    def test_get_item(self):
+        """It should Get a single Item"""
+        # get the id of a item
+        test_item = self._create_items(1)[0]
+        response = self.client.get(f"{ITEM_URL}/{test_item.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data["name"], test_item.name)
+
     def test_delete_item(self):
         """It should Delete an item"""
         test_item = self._create_items(1)[0]
@@ -699,6 +708,13 @@ class TestSupplierService(unittest.TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         response = self.client.get(f"{BASE_URL}?rating=Invaild")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_item_bad_ID(self):
+        """It should not Get a single Item"""
+        test_item = self._create_items(1)[0]
+        test_item.id = 10086
+        response = self.client.get(f"{ITEM_URL}/{test_item.id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     ######################################################################
     #  T E S T   M O C K S

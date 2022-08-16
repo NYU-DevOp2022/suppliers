@@ -33,7 +33,7 @@ class SupplierFactory(factory.Factory):
     name = factory.Faker("first_name")
     available = FuzzyChoice(choices=[True, False])
     address = factory.Faker("address")
-    rating = factory.Faker("pyfloat", right_digits=1)
+    rating = 4.5
 
 
 class ItemFactory(factory.Factory):
