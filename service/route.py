@@ -396,11 +396,11 @@ class ItemResource(Resource):
     """
     ItemResource class
     Allows the manipulation of a single Pet
-    GET /pet{id} - Returns a Pet with the id
-    DELETE /pet{id} -  Deletes a Pet with the id
+    GET /items{id} - Returns a Item with the id
+    DELETE /itsm{id} -  Deletes a Item with the id
     """
     # ------------------------------------------------------------------
-    # RETRIEVE A PET
+    # RETRIEVE AN ITEM
     # ------------------------------------------------------------------
     @api.doc('get_item')
     @api.response(404, 'Item not found')
@@ -411,7 +411,7 @@ class ItemResource(Resource):
         This endpoint will return an item based on it's id
         """
         LOG.info("Request to Retrieve a item with id [%s]", item_id)
-        item = Item.find(item_id)
+        item = Item.find_by_id(item_id)
         if not item:
             abort(status.HTTP_404_NOT_FOUND, f"Item with id '{item_id}' was not found.")
         return item.serialize(), status.HTTP_200_OK
