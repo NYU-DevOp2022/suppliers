@@ -88,8 +88,15 @@ $(function () {
         let address = $("#supplier_address").val();
         let rating = $("#supplier_rating").val();
 
-        rating = parseFloat(rating);
-        rating.toFixed(2);
+
+        if(rating != ""){
+            rating = parseFloat(rating);
+            rating.toFixed(2);
+        }
+        else{
+            alert("rating can't be none");
+        }
+        
 
 
         let data = {
