@@ -25,7 +25,6 @@ DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
 import secrets
-from functools import wraps
 from flask_restx import Resource, fields, reqparse, inputs
 from flask import jsonify, request, abort
 from flask.logging import create_logger
@@ -98,24 +97,6 @@ supplier_args.add_argument('available', type=inputs.boolean, required=False, hel
 supplier_args.add_argument('address', type=str, required=False, help='List Suppliers by address')
 supplier_args.add_argument('rating', type=float, required=False, help='List Suppliers by rating')
 supplier_args.add_argument('item-id', type=int, required=False, help='List Suppliers by related Item')
-
-
-######################################################################
-# Authorization Decorator
-######################################################################
-def token_required(f):
-    """ Helper function used when testing API keys """
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        if 'X-Api-Key' in request.headers:
-            token = request.headers['X-Api-Key']
-
-        if app.config.get('API_KEY') and app.config['API_KEY'] == token:
-            return f(*args, **kwargs)
-        else:
-            return {'message': 'Invalid or missing token'}, 401
-    return decorated
 
 
 ######################################################################
@@ -427,7 +408,7 @@ class ItemResource(Resource):
     def get(self, item_id):
         """
         Retrieve a single Item
-        This endpoint will return a Pet based on it's id
+        This endpoint will return an item based on it's id
         """
         LOG.info("Request to Retrieve a item with id [%s]", item_id)
         item = Item.find(item_id)

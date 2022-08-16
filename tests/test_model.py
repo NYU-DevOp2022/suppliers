@@ -281,8 +281,9 @@ class TestSupplierModel(unittest.TestCase):
         for supplier in suppliers:
             supplier.create()
         name = suppliers[0].name
+        count = len([x for x in suppliers if x.name == name])
         found = Supplier.find_by_name(name)
-        self.assertEqual(found.count(), 1)
+        self.assertEqual(found.count(), count)
         self.assertEqual(found[0].address, suppliers[0].address)
         self.assertEqual(found[0].rating, suppliers[0].rating)
         self.assertEqual(found[0].name, suppliers[0].name)
