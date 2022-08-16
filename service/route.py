@@ -25,7 +25,6 @@ DELETE /suppliers/{id} - deletes a Supplier record in the database
 """
 
 import secrets
-from functools import wraps
 from flask_restx import Resource, fields, reqparse, inputs
 from flask import jsonify, request, abort
 from flask.logging import create_logger
@@ -409,7 +408,7 @@ class ItemResource(Resource):
     def get(self, item_id):
         """
         Retrieve a single Item
-        This endpoint will return a Pet based on it's id
+        This endpoint will return an item based on it's id
         """
         LOG.info("Request to Retrieve a item with id [%s]", item_id)
         item = Item.find(item_id)
